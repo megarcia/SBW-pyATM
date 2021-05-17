@@ -1,0 +1,14 @@
+# collect_d03_sensitivity_exp.sub
+# UW-Madison HTCondor submit file
+universe = vanilla
+log = collect_d03_$(date)_$(exp).log
+output = collect_d03_$(date)_$(exp).out
+error = collect_d03_$(date)_$(exp).err
+requirements = (OpSys == "LINUX") && (OpSysMajorVer == 7)
+transfer_input_files = ../../miniconda3.tar.gz,combine_dens_grids.py,combine_dvel_grids.py,plot_combined_grids.py,Experiment_class.py,collect_experiment_stats.sh,plot_liftoff_time_histograms.py,plot_flight_distance_histograms.py,plot_flight_altitude_histograms.py,message_fn.py,ATM_NARR_d03_$(date)_output/$(date)_sensitivity_$(exp)_summaries.tar
+executable = collect_d03_sensitivity_exp.sh
+arguments = $(date) $(exp)
+request_cpus = 1
+request_memory = 12GB
+request_disk = 144GB
+queue 1

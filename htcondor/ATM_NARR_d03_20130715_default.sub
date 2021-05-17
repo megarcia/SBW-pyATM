@@ -1,0 +1,16 @@
+# ATM_NARR_d03_20130715_default.sub
+# UW-Madison HTCondor submit file
+universe = vanilla
+log = ATM_NARR_d03_20130715_default_$(Process).log
+output = ATM_NARR_d03_20130715_default_$(Process).out
+error = ATM_NARR_d03_20130715_default_$(Process).err
+requirements = (OpSys == "LINUX") && (OpSysMajorVer == 7)
+transfer_input_files = miniconda.sh,Flier_class.py,Flier_grids.py,Flier_setup.py,Flier_summary.py,Interpolate.py,Map_class.py,Map_setup.py,message_fn.py,Model_control.py,Model_initialization.py,Model_wrapup.py,Plots_gen.py,Radar_class.py,SBW_empirical.py,Simulation_specifications_WRF-NARR_d03_20130715.py,Sun_Times.py,Temporal_operations.py,WRFgrids_class.py,2013_BioSIM_SBW_output.csv,WRF-NARR_d03_20130715_grids.tar.gz
+executable = ATM_NARR_default.sh
+arguments = WRF-NARR_d03_20130715 $(Process)
+request_cpus = 1
+request_memory = 16GB
+request_disk = 12GB
++WantFlocking = true
++WantGlideIn = true
+queue 1
