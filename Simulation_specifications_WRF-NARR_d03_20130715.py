@@ -51,9 +51,9 @@ class Simulation(object):
         #
         # BioSIM-derived moth morphological information, if provided
         self.biosim_fname = '2013_BioSIM_SBW_output.csv'  # for now
-        self.use_initial_flier_polygon = True
-        self.init_flier_min_lat, self.init_flier_max_lat = 48.5, 50.5
-        self.init_flier_min_lon, self.init_flier_max_lon = -70.0, -67.0
+        self.use_initial_flier_polygon = False
+        # self.init_flier_min_lat, self.init_flier_max_lat = 48.5, 50.5
+        # self.init_flier_min_lon, self.init_flier_max_lon = -70.0, -67.0
         #
         # WRF input options
         self.WRF_input_path = '%s_grids' % self.simulation_name
