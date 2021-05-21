@@ -7,6 +7,7 @@ date=$1
 
 tar -xzf miniconda3.tar.gz
 export PATH=~/miniconda3/bin:$PATH
+export PROJ_LIB=~/miniconda3/share/proj
 cwd=$(pwd)
 cd /home/megarcia || exit 1
 rm -r ./*
