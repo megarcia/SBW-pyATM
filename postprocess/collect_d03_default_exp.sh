@@ -14,6 +14,8 @@ rm -r ./*
 ln -Ffs "$cwd"/miniconda3 miniconda3
 cd "$cwd" || exit 1
 
+mv Simulation_specifications_WRF-NARR_d03_"$date".py Simulation_specifications.py
+
 echo "extracting summary directories"
 tar -xf "$date"_default_summaries.tar
 rm "$date"_default_summaries.tar
