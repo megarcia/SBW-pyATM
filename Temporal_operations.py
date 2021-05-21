@@ -51,9 +51,14 @@ def end_sim_no_flights(sim, fliers, date_time, dt_str):
 def end_sim_no_fliers(fliers, dt_str):
     """If no flier objects remain, end simulation."""
     end_sim = False
-    n_fliers = len(fliers)
+    n_fliers = 0
+    for flier in fliers.values():
+        if flier.state in ['LIFTOFF', 'FLIGHT', 'LANDING_S', 'LANDING_W',
+                           'LANDING_T', 'LANDING_P', 'SUNRISE', 'SPENT',
+                           'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
+            n_fliers += 1
     if not n_fliers:
-        message('%s : no flier objects remain' % dt_str)
+        message('%s : no fliers remain' % dt_str)
         message('%s : ending simulation' % dt_str)
         end_sim = True
     return end_sim  # bool
@@ -104,8 +109,8 @@ def update_flier_locations(sim, fliers, dt_str):
     for flier in fliers.values():
         if flier.active:
             flier.update_location(sim)
-            if flier.state in ['LIFTOFF', 'FLIGHT', 'LANDING_W',
-                               'LANDING_T', 'LANDING_P', 'LANDING_S']:
+            if flier.state in ['LIFTOFF', 'FLIGHT', 'LANDING_S',
+                               'LANDING_W', 'LANDING_T', 'LANDING_P']:
                 n_moving += 1
     return n_moving  # int
 
