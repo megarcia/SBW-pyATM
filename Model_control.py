@@ -167,6 +167,7 @@ def ATM_main():
             date_time = advance_clock(sim, date_time)  # datetime object in UTC
         else:
             message('%s : end of simulation, wrapping up' % dt_str)
+            break
         message()
     #
     # *** temporal loop ends here ***
