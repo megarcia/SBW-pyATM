@@ -17,7 +17,7 @@ from SBW_empirical import SBW
 from Model_initialization import command_line_args, setup_fliers
 from Model_initialization import load_initial_WRF_grids, setup_maps, setup_radar
 from Temporal_operations import advance_clock, count_active_fliers, remove_fliers
-from Temporal_operations import end_sim_no_flights, end_sim_no_fliers
+from Temporal_operations import end_sim_no_flights
 from Temporal_operations import update_flier_states, update_flier_status
 from Temporal_operations import query_flier_environments, interpolate_flier_environments
 from Temporal_operations import update_flier_locations, update_flier_environments
