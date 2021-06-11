@@ -13,7 +13,6 @@ Copyright (C) 2019-2021 by Matthew Garcia
 from datetime import datetime, timedelta, timezone as tz
 import numpy as np
 import pandas as pd
-from message_fn import message
 from Interpolate import get_interp_vals_2D, interpolate_time
 from Map_class import lc_category
 from WRFgrids_class import check_for_WRF_file, WRFgrids
@@ -48,10 +47,10 @@ def inside_init_box(sim, lat, lon):
 def read_flier_locations_attributes(sim):
     """Read BioSIM CSV output file with moth emergence dates, locations, attributes.
        Filter to desired moth age (2-14 days) and location in simulation domain/box."""
-    message('initial setup : reading and processing %s' % sim.biosim_fname)
+    print('initial setup : reading and processing %s' % sim.biosim_fname)
     attributes_df = pd.read_csv(sim.biosim_fname, low_memory=False)
     n_attributes = len(attributes_df)
-    message('initial setup : %d total fliers are listed' % n_attributes)
+    print('initial setup : %d total fliers are listed' % n_attributes)
     lats = np.array(attributes_df['Latitude']).astype(np.float)
     lons = np.array(attributes_df['Longitude']).astype(np.float)
     inside = list()
@@ -73,20 +72,20 @@ def read_flier_locations_attributes(sim):
     attributes_df['timedelta'] = TDelta
     # select moths that are fertilized on or before the start date
     ready_df = attributes_df[attributes_df['timedelta'] >= timedelta(days=2)]
-    message('initial setup : %d total fliers are ready before the start date' %
+    print('initial setup : %d total fliers are ready before the start date' %
             len(ready_df))
     # select moths that became available within 2 weeks of the start date
     young_df = ready_df[ready_df['timedelta'] <= timedelta(days=14)]
-    message('initial setup : %d total fliers have been ready <= 2 weeks' %
+    print('initial setup : %d total fliers have been ready <= 2 weeks' %
             len(young_df))
     # select moths that are within the specified initialization/simulation area
     if sim.use_initial_flier_polygon:
         available_df = young_df[young_df['inside_init_box']]
-        message('initial setup : selecting only ready fliers in the specified area')
+        print('initial setup : selecting only ready fliers in the specified area')
     else:
         available_df = young_df[young_df['inside_grid']]
     n_available = len(available_df)
-    message('initial setup : %d ready fliers are available in the simulation domain' %
+    print('initial setup : %d ready fliers are available in the simulation domain' %
             n_available)
     # lat/lon based on BioSIM assignment and availability
     lats = np.array(available_df['Latitude']).astype(np.float)
@@ -206,25 +205,25 @@ def generate_flier_attributes(sbw, locations):
 def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover):
     """Calculate flier circadian attributes using WRF-based temperatures."""
     dt_str = 'initial setup'
-    message('%s : calculating flier circadian attributes' % dt_str)
+    print('%s : calculating flier circadian attributes' % dt_str)
     circadian_ref_hh = int(sim.circadian_ref_time)
     circadian_ref_mm = int(60 * (sim.circadian_ref_time - circadian_ref_hh))
     circadian_ref_time = \
         datetime(sim.start_time.year, sim.start_time.month, sim.start_time.day,
                  circadian_ref_hh, circadian_ref_mm, 0) \
         - timedelta(hours=sim.UTC_offset)  # datetime object in UTC
-    message('%s : circadian reference time %s UTC' %
+    print('%s : circadian reference time %s UTC' %
             (dt_str, str(circadian_ref_time.isoformat())))
     file_exists, _ = check_for_WRF_file(circadian_ref_time, sim.WRF_input_path, sim.WRF_grid)
     if file_exists:
         circadian_ref_grids = WRFgrids(circadian_ref_time, sim.WRF_input_path, sim.WRF_grid, dt_str)
-        message('%s : WRF %s grids object initialized' %
+        print('%s : WRF %s grids object initialized' %
                 (dt_str, str(circadian_ref_time.isoformat())))
-        message('%s : querying potential flier environments' % dt_str)
+        print('%s : querying potential flier environments' % dt_str)
         flier_environments = \
             circadian_ref_grids.get_flier_environments(sim, locations,
                                                        topography, landcover)
-        message('%s : updating flier circadian reference temperatures' % dt_str)
+        print('%s : updating flier circadian reference temperatures' % dt_str)
         for flier_id, flier in fliers.items():
             circadian_T_ref = flier_environments[flier_id][5]
             flier.initialize_circadian_attributes(sim, sbw, circadian_T_ref)
@@ -236,22 +235,22 @@ def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover
                      circadian_ref_hh, circadian_ref_mm1, 0) \
             - timedelta(hours=sim.UTC_offset)  # datetime object in UTC
         circadian_ref_grids1 = WRFgrids(circadian_ref_time1, sim.WRF_input_path, sim.WRF_grid, dt_str)
-        message('%s : WRF %s grids object initialized' %
+        print('%s : WRF %s grids object initialized' %
                 (dt_str, str(circadian_ref_time1.isoformat())))
-        message('%s : querying potential flier environments' % dt_str)
+        print('%s : querying potential flier environments' % dt_str)
         flier_environments1 = \
             circadian_ref_grids1.get_flier_environments(sim, locations,
                                                         topography, landcover)
         circadian_ref_time2 = circadian_ref_time1 \
             + timedelta(minutes=sim.WRF_input_interval)  # datetime object in UTC
         circadian_ref_grids2 = WRFgrids(circadian_ref_time2, sim.WRF_input_path, sim.WRF_grid, dt_str)
-        message('%s : WRF %s grids object initialized' %
+        print('%s : WRF %s grids object initialized' %
                 (dt_str, str(circadian_ref_time2.isoformat())))
-        message('%s : querying potential flier environments' % dt_str)
+        print('%s : querying potential flier environments' % dt_str)
         flier_environments2 = \
             circadian_ref_grids2.get_flier_environments(sim, locations,
                                                         topography, landcover)
-        message('%s : updating flier circadian reference temperatures' % dt_str)
+        print('%s : updating flier circadian reference temperatures' % dt_str)
         for flier_id, flier in fliers.items():
             circadian_T_ref = \
                 interpolate_time(flier_environments1[flier_id][5], circadian_ref_time1,
@@ -263,7 +262,7 @@ def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover
 
 def assign_circadian(sim, sbw, fliers):
     """Assign flier circadian attributes with user-specified values."""
-    message('initial setup : assigning specified flier circadian attributes')
+    print('initial setup : assigning specified flier circadian attributes')
     for flier in fliers:
         flier.initialize_circadian_attributes(sim, sbw, 0.0)
     return
