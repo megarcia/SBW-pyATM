@@ -103,8 +103,8 @@ def ATM_main():
     while date_time <= sim.end_time:  # datetime objects in UTC
         dt_str = '%s UTC' % str(date_time.isoformat())
         #
-        # if no flier objects remain, break simulation
-        if end_sim_no_fliers(all_fliers, dt_str):
+        # if 5h elapsed and no active fliers left, break simulation
+        if end_sim_no_flights(sim, all_fliers, date_time, dt_str):
             break
         #
         # shuffle and update WRF grids if needed
@@ -143,10 +143,6 @@ def ATM_main():
         # write out flier location and motion summary
         flier_locations = summarize_motion(all_fliers, flier_locations)
         report_flier_locations(sim, radar, flier_locations, date_time)
-        #
-        # if 5h elapsed and no active fliers left, break simulation
-        if end_sim_no_flights(sim, all_fliers, date_time, dt_str):
-            break
         #
         # loop through all_fliers, update state as needed and append to status record
         liftoff_locations, landing_locations, to_remove = \
