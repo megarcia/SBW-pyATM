@@ -11,7 +11,6 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 
 
 import sys
-from message_fn import message
 from Simulation_specifications import Simulation
 from SBW_empirical import SBW
 from Model_initialization import command_line_args, setup_fliers
@@ -30,27 +29,27 @@ from Model_wrapup import report_trajectories, report_summary_grids
 
 def ATM_main():
     """Simulation initialization and loop control."""
-    message()
-    message('initial setup : all imports loaded successfully')
+    print()
+    print('initial setup : all imports loaded successfully')
     #
     sim = Simulation()
-    message('initial setup : Simulation object initialized')
-    message('initial setup : simulation name is %s' % sim.simulation_name)
+    print('initial setup : Simulation object initialized')
+    print('initial setup : simulation name is %s' % sim.simulation_name)
     #
     command_line_args(sim, sys.argv)
     #
     sbw = SBW()
-    message('initial setup : SBW empirical object initialized')
+    print('initial setup : SBW empirical object initialized')
     #
     # simulation start/end times
-    message('initial setup : specified start time %s UTC' % str(sim.start_time.isoformat()))
-    message('initial setup : specified end time %s UTC' % str(sim.end_time.isoformat()))
-    message('initial setup : specified internal time step %d sec' % sim.dt)
+    print('initial setup : specified start time %s UTC' % str(sim.start_time.isoformat()))
+    print('initial setup : specified end time %s UTC' % str(sim.end_time.isoformat()))
+    print('initial setup : specified internal time step %d sec' % sim.dt)
     #
     # simulation use of WRF output
-    message('initial setup : using WRF file path %s' % sim.WRF_input_path)
-    message('initial setup : specified WRF grid %s' % sim.WRF_grid)
-    message('initial setup : specified WRF input interval %d min' % sim.WRF_input_interval)
+    print('initial setup : using WRF file path %s' % sim.WRF_input_path)
+    print('initial setup : specified WRF grid %s' % sim.WRF_grid)
+    print('initial setup : specified WRF input interval %d min' % sim.WRF_input_interval)
     #
     # load initial WRF grids
     last_wrf_time, last_wrf_grids = load_initial_WRF_grids(sim)
@@ -94,9 +93,9 @@ def ATM_main():
                                  flier_locations, topography, landcover, dt_str)
     #
     # simulation time steps
-    message('%s : starting model time steps' % dt_str)
+    print('%s : starting model time steps' % dt_str)
     date_time = advance_clock(sim, sim.start_time)  # datetime object in UTC
-    message()
+    print()
     #
     # *** temporal loop begins here ***
     #
@@ -162,17 +161,17 @@ def ATM_main():
         if date_time < sim.end_time:  # datetime objects in UTC
             date_time = advance_clock(sim, date_time)  # datetime object in UTC
         else:
-            message('%s : end of simulation, wrapping up' % dt_str)
+            print('%s : end of simulation, wrapping up' % dt_str)
             break
-        message()
+        print()
     #
     # *** temporal loop ends here ***
     #
     # end-of-simulation report on remaining activity
     n_active_fliers = count_active_fliers(sim, all_fliers, dt_str, output=False)
-    message('%s : simulation ended with %d active fliers (of %d specified)' %
+    print('%s : simulation ended with %d active fliers (of %d specified)' %
             (dt_str, n_active_fliers, sim.n_fliers))
-    message()
+    print()
     if n_active_fliers:
         trajectories, egg_deposition = \
             report_remaining_fliers(sim, all_fliers, trajectories, egg_deposition)
@@ -182,8 +181,8 @@ def ATM_main():
     report_trajectories(sim, next_wrf_grids, trajectories)
     report_summary_grids(sim, liftoff_locations, landing_locations, egg_deposition)
     #
-    message()
-    message('simulation %s completed' % sim.simulation_name)
+    print()
+    print('simulation %s completed' % sim.simulation_name)
     return
 
 

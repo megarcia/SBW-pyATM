@@ -13,7 +13,6 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 import sys
 import numpy as np
 from osgeo import gdal
-from message_fn import message
 
 
 def lc_category(idx):
@@ -41,10 +40,10 @@ class Map(object):
 
     def __init__(self, sim, fname):
         if '.tif' in fname:
-            message('initial setup : reading map file %s' % fname)
+            print('initial setup : reading map file %s' % fname)
             ds = gdal.Open(fname)
             if ds.RasterCount > 1:
-                message('initial setup : found >1 raster in this GeoTIFF file')
+                print('initial setup : found >1 raster in this GeoTIFF file')
             # flip to proper viewing orientation
             self.map_grid = np.flipud(ds.ReadAsArray())
             self.nrows = ds.RasterYSize
@@ -57,32 +56,32 @@ class Map(object):
             self.SW_lat = self.NE_lat + self.ncols * gt[4] - self.nrows * self.dy
             self.NE_lon = self.SW_lon + self.ncols * self.dx + self.nrows * gt[2]
         else:
-            message('ERROR: map type %s is not yet supported' % fname)
-            message('       --> exiting simulation set-up')
+            print('ERROR: map type %s is not yet supported' % fname)
+            print('       --> exiting simulation set-up')
             sys.exit(1)
         self.map_bounds = [self.SW_lat, self.SW_lon, self.NE_lat, self.NE_lon]
         self.subset = self.check_map_boundaries(sim)
         if self.subset == -1:
-            message('ERROR: the provided map %s is not' % fname)
-            message('       large enough to cover the simulation area')
-            message('       map SW_lat = %.16f must be <=' % self.SW_lat)
-            message('       sim SW_lat = %.16f' % sim.grid_min_lat)
-            message('       map SW_lon = %.16f must be <=' % self.SW_lon)
-            message('       sim SW_lon = %.16f' % sim.grid_min_lon)
-            message('       map NE_lat = %.16f must be >=' % self.NE_lat)
-            message('       sim NE_lat = %.16f' % sim.grid_max_lat)
-            message('       map NE_lat = %.16f must be >=' % self.NE_lon)
-            message('       sim NE_lat = %.16f' % sim.grid_max_lon)
-            message('       --> exiting simulation set-up')
+            print('ERROR: the provided map %s is not' % fname)
+            print('       large enough to cover the simulation area')
+            print('       map SW_lat = %.16f must be <=' % self.SW_lat)
+            print('       sim SW_lat = %.16f' % sim.grid_min_lat)
+            print('       map SW_lon = %.16f must be <=' % self.SW_lon)
+            print('       sim SW_lon = %.16f' % sim.grid_min_lon)
+            print('       map NE_lat = %.16f must be >=' % self.NE_lat)
+            print('       sim NE_lat = %.16f' % sim.grid_max_lat)
+            print('       map NE_lat = %.16f must be >=' % self.NE_lon)
+            print('       sim NE_lat = %.16f' % sim.grid_max_lon)
+            print('       --> exiting simulation set-up')
             sys.exit(1)
         elif self.subset == 0:
             self.map = self.map_grid
-            message('initial setup : resulting map dimensions: %s' %
+            print('initial setup : resulting map dimensions: %s' %
                     str(np.shape(self.map)))
         elif self.subset == 1:
-            message('initial setup : subsetting map to specified simulation boundaries')
+            print('initial setup : subsetting map to specified simulation boundaries')
             self.map = self.subset_grid(sim.grid_bounds)
-            message('initial setup : resulting map dimensions: %s' %
+            print('initial setup : resulting map dimensions: %s' %
                     str(np.shape(self.map)))
             self.SW_lat = sim.grid_bounds[0]
             self.SW_lon = sim.grid_bounds[1]

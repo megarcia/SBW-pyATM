@@ -16,12 +16,11 @@ import numpy as np
 import pandas as pd
 from Flier_grids import grid_flier_locations, grid_flier_dvels
 from Plots_gen import plot_all_flights
-from message_fn import message
 
 
 def summarize_locations(fliers, dt_str):  # dict, str
     """Collect location information for all Flier objects."""
-    message('%s : summarizing flier locations' % dt_str)
+    print('%s : summarizing flier locations' % dt_str)
     locations = dict()
     for flier_id, flier in fliers.items():
         if (flier.state in ['INITIALIZED', 'OVIPOSITION']) or flier.active:
@@ -50,7 +49,7 @@ def summarize_motion(fliers, locations):  # 2 * dict
 
 def summarize_activity(fliers, dt_str):  # dict, str
     """In-simulation summary of flier activity."""
-    message('%s : flier summary:' % dt_str)
+    print('%s : flier summary:' % dt_str)
     summary = np.zeros(8)
     for flier in fliers.values():
         if flier.state == 'INITIALIZED':
@@ -69,15 +68,15 @@ def summarize_activity(fliers, dt_str):  # dict, str
             summary[6] += 1
         elif flier.state in ['SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             summary[7] += 1
-    message('%s :   %d inactive' % (dt_str, summary[0]))
-    message('%s :   %d laying eggs' % (dt_str, summary[1]))
-    message('%s :   %d ready' % (dt_str, summary[2]))
-    message('%s :   %d lifting off' % (dt_str, summary[3]))
-    message('%s :   %d flying' % (dt_str, summary[4]))
-    message('%s :   %d landing' % (dt_str, summary[5]))
-    message('%s :   %d landed' % (dt_str, summary[6]))
-    message('%s :   %d lost' % (dt_str, summary[7]))
-    message('%s :   %d total' % (dt_str, sum(summary)))
+    print('%s :   %d inactive' % (dt_str, summary[0]))
+    print('%s :   %d laying eggs' % (dt_str, summary[1]))
+    print('%s :   %d ready' % (dt_str, summary[2]))
+    print('%s :   %d lifting off' % (dt_str, summary[3]))
+    print('%s :   %d flying' % (dt_str, summary[4]))
+    print('%s :   %d landing' % (dt_str, summary[5]))
+    print('%s :   %d landed' % (dt_str, summary[6]))
+    print('%s :   %d lost' % (dt_str, summary[7]))
+    print('%s :   %d total' % (dt_str, sum(summary)))
     return
 
 
@@ -100,7 +99,7 @@ def report_flier_locations(sim, radar, locations, date_time):
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
              dt_str, str(sim.simulation_number).zfill(5))
     location_df.to_csv(outfname)
-    message('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+    print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
     if sim.use_radar and sim.npy_grids:
         grid_flier_locations(sim, radar, locations, date_time)
         grid_flier_dvels(sim, radar, locations, date_time)
@@ -713,7 +712,7 @@ def report_flier_statistics(sim, all_fliers_flight_status, liftoff_locations):
         outfile.write(','.join([str(x) for x in flight_alt_counts_female]) + '\n')
         outfile.write(','.join([str(x) for x in flight_alt_bins_male]) + '\n')
         outfile.write(','.join([str(x) for x in flight_alt_counts_male]) + '\n')
-    message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+    print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     return
 
 
@@ -729,7 +728,7 @@ def plot_trajectories(sim, next_wrf_grids, trajectories):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  sim.simulation_name, str(sim.simulation_number).zfill(5))
     plot_all_flights(sim, next_wrf_grids, trajectories, outfname)
-    message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+    print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     return
 
 # end Flier_summary.py

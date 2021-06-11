@@ -18,7 +18,6 @@ from wrf import to_np, getvar, smooth2d, latlon_coords
 from Interpolate import get_vals_1D
 from Interpolate import get_nearest_vals_2D, get_nearest_columns
 from Interpolate import get_interp_vals_2D
-from message_fn import message
 
 
 def check_for_WRF_file(file_date_time, path, wrf_grid):
@@ -48,7 +47,7 @@ class WRFgrids(object):
         self.date_time = file_date_time
         file_exists, self.fname = check_for_WRF_file(file_date_time, path, wrf_grid)
         if file_exists:
-            message('%s : reading %s' % (dt_str, self.fname))
+            print('%s : reading %s' % (dt_str, self.fname))
             ncfile = Dataset('%s/%s' % (path, self.fname), 'r')
             # get lat/lon coordinate grids
             T2_var = getvar(ncfile, 'T2')
@@ -78,7 +77,7 @@ class WRFgrids(object):
             #
             ncfile.close()
         else:
-            message('ERROR: WRF file %s does not exist!' % self.fname)
+            print('ERROR: WRF file %s does not exist!' % self.fname)
             sys.exit()
         return
 

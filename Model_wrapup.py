@@ -10,7 +10,6 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 """
 
 
-from message_fn import message
 from Flier_summary import plot_trajectories, report_flier_statistics
 from Flier_grids import grid_liftoff_locations, grid_landing_locations
 from Flier_grids import grid_egg_deposition
@@ -18,7 +17,7 @@ from Flier_grids import grid_egg_deposition
 
 def report_remaining_fliers(sim, fliers, trajectories, egg_deposition):
     """Report status of any remaining fliers at end of simulation."""
-    message('simulation wrapup : reporting status of remaining active fliers')
+    print('simulation wrapup : reporting status of remaining active fliers')
     for flier in fliers.values():
         if flier.active:
             trajectories = flier.report_status(sim, trajectories, sim.end_time)
@@ -30,7 +29,7 @@ def report_remaining_fliers(sim, fliers, trajectories, egg_deposition):
 
 def report_statistics(sim, flight_status, liftoff_locs):
     """Report flight statistics for all flights."""
-    message('simulation wrapup : processing flight statistics')
+    print('simulation wrapup : processing flight statistics')
     report_flier_statistics(sim, flight_status, liftoff_locs)
     return
 

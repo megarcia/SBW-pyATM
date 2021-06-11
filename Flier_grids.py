@@ -13,7 +13,6 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 import numpy as np
 import pandas as pd
 from pyproj import Proj
-from message_fn import message
 
 
 def get_utm_zone(lon):
@@ -48,7 +47,7 @@ def grid_flier_locations(sim, radar, locations, date_time):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  dt_str, str(sim.simulation_number).zfill(5), radar.radar_id)
         np.save(outfname, upa_grid)
-        message('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+        print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
     return
 
 
@@ -76,7 +75,7 @@ def grid_flier_dvels(sim, radar, locations, date_time):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  dt_str, str(sim.simulation_number).zfill(5), radar.radar_id)
         np.save(outfname, upa_grid)
-        message('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+        print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
     return
 
 
@@ -139,7 +138,7 @@ def grid_liftoff_locations(sim, liftoff_locations):
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
              str(sim.simulation_number).zfill(5))
     liftoff_df.to_csv(outfname)
-    message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+    print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     #
     if sim.npy_grids:
         liftoff_grid, liftoff_females_grid, liftoff_fecundity_grid, liftoff_males_grid = \
@@ -155,7 +154,7 @@ def grid_liftoff_locations(sim, liftoff_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, liftoff_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
         #
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/liftoff_female_locs_%s_%s.npy' % \
@@ -167,7 +166,7 @@ def grid_liftoff_locations(sim, liftoff_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, liftoff_females_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
         #
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/liftoff_fecundity_locs_%s_%s.npy' % \
@@ -179,7 +178,7 @@ def grid_liftoff_locations(sim, liftoff_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, liftoff_fecundity_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
         #
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/liftoff_male_locs_%s_%s.npy' % \
@@ -191,7 +190,7 @@ def grid_liftoff_locations(sim, liftoff_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, liftoff_males_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     return
 
 
@@ -212,7 +211,7 @@ def grid_landing_locations(sim, landing_locations):
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
              str(sim.simulation_number).zfill(5))
     landing_df.to_csv(outfname)
-    message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+    print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     #
     if sim.npy_grids:
         landing_grid, landing_females_grid, landing_fecundity_grid, landing_males_grid = \
@@ -228,7 +227,7 @@ def grid_landing_locations(sim, landing_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, landing_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
         #
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/landing_female_locs_%s_%s.npy' % \
@@ -240,7 +239,7 @@ def grid_landing_locations(sim, landing_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, landing_females_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
         #
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/landing_fecundity_locs_%s_%s.npy' % \
@@ -252,7 +251,7 @@ def grid_landing_locations(sim, landing_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, landing_fecundity_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
         #
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/landing_male_locs_%s_%s.npy' % \
@@ -264,7 +263,7 @@ def grid_landing_locations(sim, landing_locations):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, landing_males_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     return
 
 
@@ -284,7 +283,7 @@ def grid_egg_deposition(sim, egg_deposition):
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
              str(sim.simulation_number).zfill(5))
     eggs_df.to_csv(outfname)
-    message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+    print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     #
     if sim.npy_grids:
         proj = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84", south=is_south(sim.grid_min_lat))
@@ -314,7 +313,7 @@ def grid_egg_deposition(sim, egg_deposition):
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
                  str(sim.simulation_number).zfill(5))
         np.save(outfname, eggs_grid)
-        message('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+        print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     return
 
 # end Flier_grids.py

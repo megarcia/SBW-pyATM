@@ -14,7 +14,6 @@ from datetime import timedelta, timezone as tz
 import numpy as np
 import pandas as pd
 from pyproj import Proj
-from message_fn import message
 from Map_class import lc_category
 from Plots_gen import plot_single_flight
 from Sun_Times import Sun
@@ -653,7 +652,7 @@ class Flier(object):
                        (outpath, str(sim.simulation_number).zfill(5), self.flier_id)
         status_df.to_csv(outfname)
         dt_str = str(date_time.isoformat())
-        message('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+        print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
         self.output_written = 1
         #
         if sim.experiment_number:
@@ -664,7 +663,7 @@ class Flier(object):
             outfname = '%s/flier_%s_%s_trajectory.png' % \
                        (outpath, str(sim.simulation_number).zfill(5), self.flier_id)
         if plot_single_flight(sim, status_df, outfname):
-            message('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+            print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
             lats = np.array(status_df['lat'])
             lons = np.array(status_df['lon'])
             alts = np.array(status_df['alt_AGL'])

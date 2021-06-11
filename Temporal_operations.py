@@ -12,7 +12,6 @@ Copyright (C) 2019-2021 by Matthew Garcia
 
 import copy
 from datetime import timedelta
-from message_fn import message
 from WRFgrids_class import WRFgrids
 from Interpolate import interpolate_time
 
@@ -21,7 +20,7 @@ def advance_clock(sim, date_time):
     """Advance simulation time by dt, in seconds.
        Input and output are datetime objects in UTC."""
     dt_str = '%s UTC' % str(date_time.isoformat())
-    message('%s : advancing clock, dt = %d seconds' % (dt_str, sim.dt))
+    print('%s : advancing clock, dt = %d seconds' % (dt_str, sim.dt))
     date_time_new = date_time + timedelta(seconds=sim.dt)
     return date_time_new  # datetime object
 
@@ -30,7 +29,7 @@ def count_active_fliers(sim, fliers, dt_str, output=True):
     """Report count of active fliers in simulation."""
     n_active = sum(flier.active for flier in fliers.values())
     if output:
-        message('%s : %d active fliers (of %d specified)' %
+        print('%s : %d active fliers (of %d specified)' %
                 (dt_str, n_active, sim.n_fliers))
     return n_active  # int
 
@@ -42,8 +41,8 @@ def end_sim_no_flights(sim, fliers, date_time, dt_str):
     if elapsed_time.seconds >= (5 * 60 * 60):
         n_active = count_active_fliers(sim, fliers, dt_str, output=False)
         if not n_active:
-            message('%s : no active fliers remain' % dt_str)
-            message('%s : ending simulation' % dt_str)
+            print('%s : no active fliers remain' % dt_str)
+            print('%s : ending simulation' % dt_str)
             end_sim = True
     return end_sim  # bool
 
@@ -58,8 +57,8 @@ def end_sim_no_fliers(fliers, dt_str):
                            'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             n_fliers += 1
     if not n_fliers:
-        message('%s : no fliers remain' % dt_str)
-        message('%s : ending simulation' % dt_str)
+        print('%s : no fliers remain' % dt_str)
+        print('%s : ending simulation' % dt_str)
         end_sim = True
     return end_sim  # bool
 
@@ -67,7 +66,7 @@ def end_sim_no_fliers(fliers, dt_str):
 def query_flier_environments(sim, wrf_time, wrf_grids, flier_locations,
                              topography, landcover, dt_str):
     """Get environmental variables for all fliers."""
-    message('%s : querying flier environments using %s WRF grids' %
+    print('%s : querying flier environments using %s WRF grids' %
             (dt_str, str(wrf_time.isoformat())))
     flier_environments = \
         wrf_grids.get_flier_environments(sim, flier_locations,
@@ -77,7 +76,7 @@ def query_flier_environments(sim, wrf_time, wrf_grids, flier_locations,
 
 def update_flier_environments(fliers, environments, dt_str):
     """Update flier accounts of environmental variables."""
-    message('%s : updating flier environments' % dt_str)
+    print('%s : updating flier environments' % dt_str)
     for flier_id, flier in fliers.items():
         env = environments[flier_id]
         flier.update_environment(env[3:])
@@ -87,7 +86,7 @@ def update_flier_environments(fliers, environments, dt_str):
 def interpolate_flier_environments(fliers, environments_last, environments_next,
                                    last_wrf_time, next_wrf_time, date_time):
     """Interpolate between two sets of WRF grids for flier environments."""
-    message('%s UTC : interpolating flier environments' % str(date_time.isoformat()))
+    print('%s UTC : interpolating flier environments' % str(date_time.isoformat()))
     for flier_id, flier in fliers.items():
         last_env = environments_last[flier_id]
         next_env = environments_next[flier_id]
@@ -104,7 +103,7 @@ def interpolate_flier_environments(fliers, environments_last, environments_next,
 
 def update_flier_locations(sim, fliers, dt_str):
     """Update locations of all fliers (using flier motion)."""
-    message('%s : updating flier locations' % dt_str)
+    print('%s : updating flier locations' % dt_str)
     n_moving = 0
     for flier in fliers.values():
         if flier.active:
@@ -118,14 +117,14 @@ def update_flier_locations(sim, fliers, dt_str):
 def update_flier_states(sim, sbw, defoliation, radar, fliers, date_time,
                         liftoff_locs, landing_locs, dt_str):
     """Update operating states of all fliers."""
-    message('%s : updating states of active fliers' % dt_str)
+    print('%s : updating states of active fliers' % dt_str)
     to_remove = list()
     for flier_id, flier in fliers.items():
         remove, liftoff_locs, landing_locs = \
             flier.state_decisions(sim, sbw, defoliation, radar, date_time,
                                   liftoff_locs, landing_locs)
         if remove:
-            message('%s : flier %s indicated for removal' %
+            print('%s : flier %s indicated for removal' %
                     (dt_str, flier.flier_id))
             to_remove.append(flier_id)
     return liftoff_locs, landing_locs, to_remove  # 2 * dict + list
@@ -149,7 +148,7 @@ def remove_fliers(sim, fliers, date_time, flight_status,
             for eggs_id, egg_location in flier.eggs_laid.items():
                 egg_deposition[eggs_id] = egg_location
         del fliers[flier_id]
-        message('%s : removed %s Flier object' % (dt_str, flier_id))
+        print('%s : removed %s Flier object' % (dt_str, flier_id))
     return fliers, flight_status, trajectories, egg_deposition  # 4 * dict
 
 
@@ -157,13 +156,13 @@ def load_next_WRF_grids(sim, date_time, dt_str):
     """Load next WRF grids in temporal sequence."""
     next_time = date_time + timedelta(minutes=sim.WRF_input_interval)
     next_grids = WRFgrids(next_time, sim.WRF_input_path, sim.WRF_grid, dt_str)
-    message('%s : WRF %s grids object initialized' % (dt_str, str(next_time.isoformat())))
+    print('%s : WRF %s grids object initialized' % (dt_str, str(next_time.isoformat())))
     return next_time, next_grids  # datetime + WRFgrids objects
 
 
 def shuffle_WRF_grids(sim, next_time, next_grids, dt_str):
     """Shuffle next WRF grids to last, load new grids."""
-    message('%s : updating WRF grids' % dt_str)
+    print('%s : updating WRF grids' % dt_str)
     last_time = copy.deepcopy(next_time)  # datetime objects in UTC
     last_grids = copy.deepcopy(next_grids)  # WRFgrids object
     next_time, next_grids = load_next_WRF_grids(sim, last_time, dt_str)

@@ -11,7 +11,6 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 
 
 import numpy as np
-from message_fn import message
 from WRFgrids_class import WRFgrids
 from Map_setup import setup_topo_map, setup_lc_map, setup_defoliation_map
 from Radar_class import Radar
@@ -26,42 +25,42 @@ def command_line_args(sim, args):
     """Process command line arguments.
        TO DO: convert to argparse usage."""
     if len(args) > 2:
-        message('initial setup : experiment number %s' % args[1])
+        print('initial setup : experiment number %s' % args[1])
         sim.experiment_number = int(args[1])
         var_name = args[2]
         var_value = float(args[3])
         if var_name == 'max_precip':
             sim.max_precip = var_value
-            message('initial setup : using %s = %.2f' % (var_name, var_value))
+            print('initial setup : using %s = %.2f' % (var_name, var_value))
         if var_name == 'min_windspeed':
             sim.min_windspeed = var_value
-            message('initial setup : using %s = %.2f' % (var_name, var_value))
+            print('initial setup : using %s = %.2f' % (var_name, var_value))
         if sim.flight_speed == 'const':
             if var_name == 'w_horizontal':
                 sim.w_horizontal = var_value
-                message('initial setup : using %s = %.2f' % (var_name, var_value))
+                print('initial setup : using %s = %.2f' % (var_name, var_value))
             if var_name == 'w_alpha':
                 sim.w_alpha = var_value
-                message('initial setup : using %s = %.2f' % (var_name, var_value))
+                print('initial setup : using %s = %.2f' % (var_name, var_value))
             if var_name == 'wingbeat_eff':
-                message('initial setup : ignoring %s value' % var_name)
-                message('initial setup : (change sim.flight_speed if you want to use it)')
+                print('initial setup : ignoring %s value' % var_name)
+                print('initial setup : (change sim.flight_speed if you want to use it)')
         if sim.flight_speed == 'param':
             if var_name in ['w_horizontal', 'w_alpha']:
-                message('initial setup : ignoring %s value' % var_name)
-                message('initial setup : (change sim.flight_speed if you want to use it)')
+                print('initial setup : ignoring %s value' % var_name)
+                print('initial setup : (change sim.flight_speed if you want to use it)')
             if var_name == 'wingbeat_eff':
                 sim.wingbeat_eff = var_value
-                message('initial setup : using %s = %.2f' % (var_name, var_value))
+                print('initial setup : using %s = %.2f' % (var_name, var_value))
         if var_name == 'delta_nu':
             sim.delta_nu = var_value
-            message('initial setup : using %s = %.2f' % (var_name, var_value))
-        message('initial setup : simulation number %s in experiment collection' %
+            print('initial setup : using %s = %.2f' % (var_name, var_value))
+        print('initial setup : simulation number %s in experiment collection' %
                 args[4].zfill(5))
         sim.simulation_number = int(args[4])
     else:
-        message('initial setup : using default values for all parameters')
-        message('initial setup : simulation number %s in experiment collection' %
+        print('initial setup : using default values for all parameters')
+        print('initial setup : simulation number %s in experiment collection' %
                 args[1].zfill(5))
         sim.simulation_number = int(args[1])
     return
@@ -71,7 +70,7 @@ def load_initial_WRF_grids(sim):
     """Load initial WRF grids."""
     last_time = sim.start_time
     last_grids = WRFgrids(last_time, sim.WRF_input_path, sim.WRF_grid, 'initial setup')
-    message('initial setup : WRF %s grids object initialized' % str(last_time.isoformat()))
+    print('initial setup : WRF %s grids object initialized' % str(last_time.isoformat()))
     return last_time, last_grids  # datetime + WRFgrids objects
 
 
@@ -88,7 +87,7 @@ def setup_radar(sim):
        TO-DO: expand to allow multiple radars."""
     if sim.use_radar:
         radar = Radar(sim)
-        message('initial setup : radar location %s initialized' % sim.radar_name)
+        print('initial setup : radar location %s initialized' % sim.radar_name)
     else:
         radar = None
     return radar  # Map object
@@ -98,12 +97,12 @@ def setup_fliers(sim, sbw, last_wrf_grids, topography, landcover, defoliation):
     """Initialize and define collection of fliers."""
     if sim.use_defoliation:
         # assign flier locations and attributes using defoliation map and empirical eqns
-        message('initial setup : assigning defoliation-based flier locations and attributes')
+        print('initial setup : assigning defoliation-based flier locations and attributes')
         flier_locations = generate_flier_locations(last_wrf_grids, landcover, defoliation)
         flier_attributes = generate_flier_attributes(sbw, flier_locations)
     else:
         # read flier locations and attributes from BioSIM output CSV file
-        message('initial setup : obtaining BioSIM output flier locations and attributes')
+        print('initial setup : obtaining BioSIM output flier locations and attributes')
         flier_locations, flier_attributes = read_flier_locations_attributes(sim)
     #
     # select n_fliers from available pool
@@ -111,7 +110,7 @@ def setup_fliers(sim, sbw, last_wrf_grids, topography, landcover, defoliation):
     selected_fliers = np.random.randint(low=0, high=n_fliers_available, size=sim.n_fliers)
     #
     # initialize individual Flier objects
-    message('initial setup : initializing %d Fliers' % sim.n_fliers)
+    print('initial setup : initializing %d Fliers' % sim.n_fliers)
     fliers = dict()
     for f, f_available_idx in enumerate(selected_fliers):
         flier_idx = sim.simulation_number * sim.n_fliers * 10 + f
@@ -121,7 +120,7 @@ def setup_fliers(sim, sbw, last_wrf_grids, topography, landcover, defoliation):
                                  flier_attributes[f_available_idx])
     n_female = sum(flier.sex for flier in fliers.values())
     n_male = sim.n_fliers - n_female
-    message('initial setup : %d Flier objects initialized (%d F, %d M)' %
+    print('initial setup : %d Flier objects initialized (%d F, %d M)' %
             (sim.n_fliers, n_female, n_male))
     #
     # summarize flier locations
