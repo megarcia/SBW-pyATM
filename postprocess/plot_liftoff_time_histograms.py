@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
 from Experiment_class import gen_experiments
-from message_fn import message
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -72,7 +71,7 @@ def calc_circadian_p(t_c, t_0, t_m, date_time):
     return circadian_p  # float
 
 
-message()
+print()
 date = sys.argv[1]
 sim_name = sys.argv[2]
 if sim_name == 'default':
@@ -92,10 +91,10 @@ nmales = np.array(summary_df['n_male'])
 all_fliers = np.array(summary_df['n_fliers_total'])
 female_fliers = np.array(summary_df['n_fliers_female'])
 male_fliers = np.array(summary_df['n_fliers_male'])
-message('flier total fractions:')
-message('    female: %.3f' % (np.sum(female_fliers) / np.sum(nfemales)))
-message('    male: %.3f' % (np.sum(male_fliers) / np.sum(nmales)))
-message('    overall: %.3f' % (np.sum(all_fliers) / np.sum(nmoths)))
+print('flier total fractions:')
+print('    female: %.3f' % (np.sum(female_fliers) / np.sum(nfemales)))
+print('    male: %.3f' % (np.sum(male_fliers) / np.sum(nmales)))
+print('    overall: %.3f' % (np.sum(all_fliers) / np.sum(nmoths)))
 #
 overall_fname = '%s/%s_liftoff_times_histogram.csv' % (path, sim_name)
 overall_df = pd.read_csv(overall_fname, index_col=False)
@@ -163,9 +162,9 @@ corr, _ = pearsonr(overall_accum_y_vals, optimum_y_vals)
 mean_actual = np.sum(overall_accum_y_vals * x_vals) / np.sum(overall_accum_y_vals)
 mean_optimum = np.sum(optimum_y_vals * x_vals) / np.sum(optimum_y_vals)
 bias = mean_actual - mean_optimum
-message('liftoff time distribution')
-message('    corr = %.4f' % corr)
-message('    bias = %.1f mins' % bias)
+print('liftoff time distribution')
+print('    corr = %.4f' % corr)
+print('    bias = %.1f mins' % bias)
 #
 fig_fname = '%s/%s_liftoff_times_histogram.png' % (path, sim_name)
 plt.figure(figsize=(6, 4))
@@ -188,8 +187,8 @@ else:
     plt.title('%s %s' % (date, sim_name), fontsize=10)
 plt.tight_layout()
 plt.savefig(fig_fname, dpi=300, bbox_inches='tight')
-message('saved figure %s' % fig_fname)
+print('saved figure %s' % fig_fname)
 plt.close()
-message()
+print()
 
 # end plot_liftoff_time_histograms.py

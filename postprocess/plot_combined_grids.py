@@ -11,7 +11,6 @@ Copyright (C) 2021 by Matthew Garcia
 
 
 import numpy as np
-from message_fn import message
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -40,7 +39,7 @@ def plot_grid(sw_e, sw_n, ne_e, ne_n, UTMz, grid, cmin, cmax, cmap, title, fname
     plt.ylabel('UTM %sN northing (km)' % UTMz, fontsize=10)
     plt.title(title, fontsize=10)
     plt.savefig(fname, dpi=300, bbox_inches='tight')
-    message('- saved figure %s' % fname)
+    print('- saved figure %s' % fname)
     plt.close()
     return
 

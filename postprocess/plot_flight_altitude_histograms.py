@@ -14,13 +14,12 @@ import sys
 import numpy as np
 import pandas as pd
 from Experiment_class import gen_experiments
-from message_fn import message
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 
-message()
+print()
 date = sys.argv[1]
 sim_name = sys.argv[2]
 if sim_name == 'default':
@@ -67,8 +66,8 @@ else:
     plt.title('%s %s' % (date, sim_name), fontsize=10)
 plt.tight_layout()
 plt.savefig(fig_fname, dpi=300, bbox_inches='tight')
-message('saved figure %s' % fig_fname)
+print('saved figure %s' % fig_fname)
 plt.close()
-message()
+print()
 
 # end plot_flight_altitude_histogram.py

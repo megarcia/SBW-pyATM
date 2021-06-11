@@ -16,7 +16,6 @@ from glob import glob
 import numpy as np
 import pandas as pd
 from plot_combined_grids import plot_grid
-from message_fn import message
 
 
 fields = {'dens': 9, 'dvel': 4}
@@ -31,12 +30,12 @@ dx = 1000.0
 dy = 1000.0
 
 
-message()
+print()
 field = 'dvel'
 experiment = sys.argv[2]
 date = sys.argv[1]
 #
-message('gathering file list for %s field' % field)
+print('gathering file list for %s field' % field)
 if experiment == 'default':
     inpath = '%s/WRF-NARR_d03_%s_simulation_000??_summary' % (experiment, date)
 else:
@@ -51,7 +50,7 @@ else:
                                   (inpath, minute, str(int(experiment)).zfill(2))))
     dvel_fname_list = sorted(glob('%s/dvel_*%d:00+00:00_%s_000??_XAM_grid.npy' %
                                   (inpath, minute, str(int(experiment)).zfill(2))))
-message('- found %d files to process' % len(dvel_fname_list))
+print('- found %d files to process' % len(dvel_fname_list))
 files_df = pd.DataFrame({'dens_fname': dens_fname_list,
                          'dvel_fname': dvel_fname_list})
 # 'dens_2013-07-15T23/54/00+00:00_10_00000_XAM_grid.npy'
@@ -65,22 +64,22 @@ else:
 files_df['iteration'] = iteration
 times = sorted(list(set(times)))
 times_df = pd.DataFrame({'%s_time' % field: times})
-message('- found %d times to process' % len(times))
-message()
+print('- found %d times to process' % len(times))
+print()
 #
-message('building 1-km target grid according to radar coverage area')
-message('- UTM zone = %d' % UTM_zone)
-message('- SW corner easting = %.0f' % sw_east)
-message('- NE corner easting = %.0f' % ne_east)
-message('- dx = %.0f' % dx)
+print('building 1-km target grid according to radar coverage area')
+print('- UTM zone = %d' % UTM_zone)
+print('- SW corner easting = %.0f' % sw_east)
+print('- NE corner easting = %.0f' % ne_east)
+print('- dx = %.0f' % dx)
 ncols = int((ne_east - sw_east) / dx)
-message('- ncols = %d' % ncols)
-message('- SW corner northing = %.0f' % sw_north)
-message('- NE corner northing = %.0f' % ne_north)
-message('- dy = %.0f' % dy)
+print('- ncols = %d' % ncols)
+print('- SW corner northing = %.0f' % sw_north)
+print('- NE corner northing = %.0f' % ne_north)
+print('- dy = %.0f' % dy)
 nrows = int((ne_north - sw_north) / dy)
-message('- nrows = %d' % nrows)
-message()
+print('- nrows = %d' % nrows)
+print()
 #
 if experiment == 'default':
     # if not os.path.exists('%s_collected' % (experiment)):
@@ -96,12 +95,12 @@ time_max_dens_nmoths = list()
 time_min_dvel = list()
 time_max_dvel = list()
 for timestr in times:
-    message('processing %s' % timestr)
+    print('processing %s' % timestr)
     time_df = files_df[files_df['time'] == timestr]
     dens_fname_list = list(time_df['dens_fname'])
     dvel_fname_list = list(time_df['dvel_fname'])
     iteration_list = list(time_df['iteration'])
-    message('- %d files' % len(dvel_fname_list))
+    print('- %d files' % len(dvel_fname_list))
     #
     dens_combined_grid = np.zeros((nrows, ncols))
     dvel_combined_grid = np.zeros((nrows, ncols))
@@ -109,15 +108,15 @@ for timestr in times:
                                                  dvel_fname_list,
                                                  iteration_list):
         if not os.path.isfile(dens_fname):
-            message('%s not found, skipping' % dens_fname)
+            print('%s not found, skipping' % dens_fname)
             continue
         if not os.path.isfile(dvel_fname):
-            message('%s not found, skipping' % dvel_fname)
+            print('%s not found, skipping' % dvel_fname)
             continue
         dens_grid = np.load(dens_fname)
         nmoths = int(np.sum(dens_grid))
         file_dens_nmoths.append(nmoths)
-        message('- %s (%d moths)' % (iteration, nmoths))
+        print('- %s (%d moths)' % (iteration, nmoths))
         dens_combined_grid += dens_grid
         dvel_grid = np.load(dvel_fname)
         dvel_combined_grid += dens_grid * dvel_grid
@@ -126,26 +125,26 @@ for timestr in times:
     time_dens_nmoths.append(nmoths)
     max_nmoths = int(np.max(dens_combined_grid))
     time_max_dens_nmoths.append(int(np.max(dens_combined_grid)))
-    message('gridded %d flying moths' % nmoths)
+    print('gridded %d flying moths' % nmoths)
     if nmoths:
         dvel_weighted_grid = dvel_combined_grid / dens_combined_grid
         min_dvel = np.nanmin(dvel_weighted_grid)
         time_min_dvel.append(min_dvel)
         max_dvel = np.nanmax(dvel_weighted_grid)
         time_max_dvel.append(max_dvel)
-        message('- min = %.2f, max = %.2f' % (min_dvel, max_dvel))
+        print('- min = %.2f, max = %.2f' % (min_dvel, max_dvel))
         outfname = '%s/%s_%s_collected_XAM_grid.npy' % (outpath, field, timestr)
         np.save(outfname, dvel_weighted_grid)
-        message('- saved %s' % outfname)
+        print('- saved %s' % outfname)
         title = '%s moth velocity (n = %d)' % (timestr, nmoths)
         outfname = '%s.png' % outfname[:-4]
         plot_grid(sw_east, sw_north, ne_east, ne_north, UTM_zone,
                   dvel_weighted_grid, -20, 20, 'RdYlGn', title, outfname)
     else:
-        message('- no flight locations for saving/plotting')
+        print('- no flight locations for saving/plotting')
         time_min_dvel.append(0.0)
         time_max_dvel.append(0.0)
-    message()
+    print()
 #
 files_df['nmoths'] = file_dens_nmoths
 if experiment == 'default':
@@ -154,7 +153,7 @@ else:
     outfname = '%s/%s_%s_sensitivity_%s_fileinfo.csv' % \
         (outpath, field, date, str(int(experiment)).zfill(2))
 files_df.to_csv(outfname, index=False)
-message('saved %s' % outfname)
+print('saved %s' % outfname)
 #
 times_df['nmoths'] = time_dens_nmoths
 times_df['max_nmoths'] = time_max_dens_nmoths
@@ -166,10 +165,10 @@ else:
     outfname = '%s/%s_%s_sensitivity_%s_timeinfo.csv' % \
         (outpath, field, date, str(int(experiment)).zfill(2))
 times_df.to_csv(outfname, index=False)
-message('saved %s' % outfname)
+print('saved %s' % outfname)
 #
-message()
-message('done!')
-message()
+print()
+print('done!')
+print()
 
 # end combine_dvel_grids.py
