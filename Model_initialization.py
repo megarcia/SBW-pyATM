@@ -12,7 +12,7 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 
 import numpy as np
 from WRFgrids_class import WRFgrids
-from Map_setup import setup_topo_map, setup_lc_map, setup_defoliation_map
+from Geography import setup_topo_map, setup_lc_map, setup_defoliation_map
 from Radar_class import Radar
 from Flier_class import Flier
 from Flier_setup import read_flier_locations_attributes

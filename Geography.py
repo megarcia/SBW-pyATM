@@ -1,6 +1,6 @@
 # pylint: disable=C0103,R0205,R0902,R1711
 """
-Python script "Map_setup.py"
+Python script "Geography.py"
 by Matthew Garcia, Postdoctoral Research Associate
 Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
@@ -44,4 +44,4 @@ def setup_defoliation_map(sim):
         defol_map = None
     return defol_map  # Map object or None
 
-# end Map_setup.py
+# end Geography.py
