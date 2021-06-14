@@ -16,17 +16,8 @@ import pandas as pd
 from pyproj import Proj
 from Map_class import lc_category
 from Plots_gen import plot_single_flight
+from Geography import get_utm_zone, is_south
 from Sun_Times import Sun
-
-
-def get_utm_zone(lon):
-    """Calculate UTM zone number."""
-    return int(1 + (lon + 180.0) / 6.0)
-
-
-def is_south(lat):
-    """Is location in southern hemisphere?"""
-    return bool(lat < 0.0)
 
 
 class Flier(object):

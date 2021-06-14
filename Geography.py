@@ -13,6 +13,16 @@ Copyright (C) 2020 by Matthew Garcia
 from Map_class import Map
 
 
+def get_utm_zone(lon):
+    """Calculate UTM zone number."""
+    return int(1 + (lon + 180.0) / 6.0)
+
+
+def is_south(lat):
+    """Is location in southern hemisphere?"""
+    return bool(lat < 0.0)
+
+
 def setup_topo_map(sim):
     """Initialize topography map object as indicated."""
     if sim.topography_fname == 'WRF':

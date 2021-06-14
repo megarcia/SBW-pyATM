@@ -13,16 +13,7 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 import warnings
 import numpy as np
 from pyproj import Proj
-
-
-def get_utm_zone(lon):
-    """Calculate UTM zone number."""
-    return int(1 + (lon + 180.0) / 6.0)
-
-
-def is_south(lat):
-    """Is location in southern hemisphere?"""
-    return bool(lat < 0.0)
+from Geography import get_utm_zone, is_south
 
 
 class Radar(object):
