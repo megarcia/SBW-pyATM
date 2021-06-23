@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone as tz
 import numpy as np
-from Sun_Times import Sun
+from Solar_calculations import Sun
 
 
 circadian_p1_mean = -3.8  # [h]
