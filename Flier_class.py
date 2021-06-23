@@ -37,9 +37,9 @@ class Flier(object):
         # location-based attributes
         self.lat = flier_location[0]
         self.lon = flier_location[1]
-        self.alt_AGL = 0.0
         self.easting, self.northing, self.UTM_zone = lat_lon_to_utm(self.lat, self.lon)
         self.sfc_elev = 0.0
+        self.alt_AGL = 0.0
         self.alt_MSL = self.sfc_elev + self.alt_AGL
         self.calc_GpH()
         if sim.use_defoliation:
@@ -49,19 +49,28 @@ class Flier(object):
             self.landcover_index = -9999
             self.defoliation_level = 0
         #
-        # circadian rhythm attributes
+        # solar time attributes (to be initialized elsewhere)
+        self.utc_sunset_time = None
+        self.local_sunset_time = None
+        self.utc_sunrise_time = None
+        self.local_sunrise_time = None
+        #
+        # circadian rhythm attributes (to be initialized elsewhere)
         self.circadian_T_ref = 0.0
         self.circadian_delta_s = 0.0
         self.circadian_delta_0 = 0.0
         self.circadian_delta_f = 0.0
         self.circadian_delta_f_potential = 0.0
         self.utc_t_c = None
+        self.local_t_c = None
         self.utc_t_0 = None
+        self.local_t_0 = None
         self.utc_t_m = None
+        self.local_t_m = None
         self.circadian_p = 0.0
         self.circadian_p_threshold = np.random.uniform()
         #
-        # environmental attributes
+        # environmental attributes (to be provided by WRF data)
         self.P = 0.0
         self.T = 0.0
         self.Precip = 0.0
