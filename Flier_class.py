@@ -552,8 +552,8 @@ class Flier(object):
         return remove, liftoff_locations, landing_locations  # bool + 2 * dict
 
     @staticmethod
-    def flight_status_columns(full_physics=False):
-        if full_physics:
+    def flight_status_columns(sim):
+        if sim.full_physics:
             # full physics formulation
             columns = ['flight_status', 'date_time', 'prev_state', 'state',
                        'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
@@ -571,9 +571,9 @@ class Flier(object):
                        'U', 'V', 'W']
         return columns
 
-    def flight_status_info(self, date_time, phys=False):
+    def flight_status_info(self, sim, date_time):
         # note date_time is a datetime object --> convert to ISOformat for output
-        if phys:
+        if sim.full_physics:
             # full physics formulation
             status_info = [self.flight_status_idx, date_time.isoformat(), self.prev_state,
                            self.state, self.northing, self.easting, self.UTM_zone, self.lat,
@@ -601,7 +601,7 @@ class Flier(object):
         flight_status_str = '%s_%s' % \
             (self.flier_id, str(self.flight_status_idx).zfill(7))
         self.flight_status[flight_status_str] = \
-            self.flight_status_info(date_time, phys=sim.full_physics)
+            self.flight_status_info(sim, date_time)
         self.flight_status_idx += 1
         return
 
@@ -615,7 +615,7 @@ class Flier(object):
             outpath = '%s_simulation_%s_output' % \
                       (sim.simulation_name, str(sim.simulation_number).zfill(5))
         status_df = pd.DataFrame.from_dict(self.flight_status, orient='index')
-        status_df.columns = self.flight_status_columns(phys=sim.full_physics)
+        status_df.columns = self.flight_status_columns(sim)
         status_df = status_df.sort_values(by=['flight_status'])
         if sim.experiment_number:
             outfname = '%s/flier_%s_%s_%s_report.csv' % \
