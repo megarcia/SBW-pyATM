@@ -551,8 +551,9 @@ class Flier(object):
             remove = True
         return remove, liftoff_locations, landing_locations  # bool + 2 * dict
 
-    def flight_status_columns(self, phys=False):
-        if phys:
+    @staticmethod
+    def flight_status_columns(full_physics=False):
+        if full_physics:
             # full physics formulation
             columns = ['flight_status', 'date_time', 'prev_state', 'state',
                        'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
