@@ -14,6 +14,7 @@ import copy
 from datetime import timedelta
 from WRFgrids_class import WRFgrids
 from Interpolate import interpolate_time
+from Sun_Times import update_suntimes
 
 
 def advance_clock(sim, date_time):
@@ -108,6 +109,7 @@ def update_flier_locations(sim, fliers, dt_str):
     for flier in fliers.values():
         if flier.active:
             flier.update_location(sim)
+            update_suntimes(sim, flier)
             if flier.state in ['LIFTOFF', 'FLIGHT', 'LANDING_S',
                                'LANDING_W', 'LANDING_T', 'LANDING_P']:
                 n_moving += 1

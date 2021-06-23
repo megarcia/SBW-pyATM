@@ -17,7 +17,6 @@ from pyproj import Proj
 from Map_class import lc_category
 from Plots_gen import plot_single_flight
 from Geography import get_utm_zone, is_south
-from Sun_Times import Sun
 
 
 class Flier(object):
@@ -44,7 +43,6 @@ class Flier(object):
         proj = Proj(proj="utm", zone=self.UTM_zone, ellps="WGS84",
                     south=is_south(self.lat))
         self.easting, self.northing = proj(self.lon, self.lat)
-        self.update_suntimes(sim)
         self.sfc_elev = 0.0
         self.alt_MSL = self.sfc_elev + self.alt_AGL
         self.calc_GpH()
@@ -126,21 +124,6 @@ class Flier(object):
     def calc_AM_ratio(self):
         """Flight strength ratio introduced by MG (July 2020)"""
         self.AMratio = self.forewing_A / (self.mass * 1000.0)  # cm^2 per g
-        return
-
-    def update_suntimes(self, sim):
-        """Update sunset/sunrise times based on location."""
-        sun = Sun(lat=self.lat, lon=self.lon, UTC_offset=sim.UTC_offset)
-        self.local_sunset_time = sun.sunset(when=sim.start_time) + \
-                                 timedelta(hours=sim.UTC_offset)
-        self.utc_sunset_time = self.local_sunset_time - \
-                               timedelta(hours=sim.UTC_offset)
-        self.utc_sunset_time = self.utc_sunset_time.replace(tzinfo=tz.utc)
-        self.local_sunrise_time = sun.sunrise(when=sim.end_time) + \
-                                  timedelta(hours=sim.UTC_offset)
-        self.utc_sunrise_time = self.local_sunrise_time - \
-                                timedelta(hours=sim.UTC_offset)
-        self.utc_sunrise_time = self.utc_sunrise_time.replace(tzinfo=tz.utc)
         return
 
     def initialize_circadian_attributes(self, sim, sbw, circadian_T_ref):
@@ -265,7 +248,6 @@ class Flier(object):
             self.lon, self.lat = proj(self.easting, self.northing, inverse=True)
             self.alt_MSL += z_dist
             self.calc_GpH()
-            self.update_suntimes(sim)
         return
 
     def inside_grid(self, sim):

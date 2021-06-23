@@ -6,7 +6,7 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019, 2020 by Matthew Garcia
+Copyright (C) 2019-2021 by Matthew Garcia
 """
 
 
@@ -19,6 +19,7 @@ from Flier_setup import read_flier_locations_attributes
 from Flier_setup import generate_flier_locations, generate_flier_attributes
 from Flier_setup import calc_circadian_from_WRF_T, assign_circadian
 from Flier_summary import summarize_locations
+from Sun_Times import update_suntimes
 
 
 def command_line_args(sim, args):
@@ -118,6 +119,7 @@ def setup_fliers(sim, sbw, last_wrf_grids, topography, landcover, defoliation):
                                   str(sim.start_time.day).zfill(2), str(flier_idx).zfill(9))
         fliers[flier_id] = Flier(sim, sbw, flier_id, flier_locations[f_available_idx],
                                  flier_attributes[f_available_idx])
+        update_suntimes(sim, fliers[flier_id])
     n_female = sum(flier.sex for flier in fliers.values())
     n_male = sim.n_fliers - n_female
     print('initial setup : %d Flier objects initialized (%d F, %d M)' %

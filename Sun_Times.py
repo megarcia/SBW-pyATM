@@ -162,8 +162,24 @@ def test(sim):
     local_sunrise_time = sun.sunrise(when=sim.end_time) + timedelta(hours=sim.UTC_offset)
     print('local sunrise = ', local_sunrise_time)
     utc_sunrise_time = local_sunrise_time - timedelta(hours=sim.UTC_offset)
-    print('UTC sunset = ', utc_sunrise_time)
+    print('UTC sunrise = ', utc_sunrise_time)
     print()
+    return
+
+
+def update_suntimes(sim, flier):
+    """Update sunset/sunrise times based on location."""
+    sun = Sun(lat=flier.lat, lon=flier.lon, UTC_offset=sim.UTC_offset)
+    flier.local_sunset_time = sun.sunset(when=sim.start_time) + \
+                              timedelta(hours=sim.UTC_offset)
+    flier.utc_sunset_time = flier.local_sunset_time - \
+                            timedelta(hours=sim.UTC_offset)
+    flier.utc_sunset_time = flier.utc_sunset_time.replace(tzinfo=tz.utc)
+    flier.local_sunrise_time = sun.sunrise(when=sim.end_time) + \
+                               timedelta(hours=sim.UTC_offset)
+    flier.utc_sunrise_time = flier.local_sunrise_time - \
+                             timedelta(hours=sim.UTC_offset)
+    flier.utc_sunrise_time = flier.utc_sunrise_time.replace(tzinfo=tz.utc)
     return
 
 
