@@ -6,21 +6,31 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2020 by Matthew Garcia
+Copyright (C) 2020-2021 by Matthew Garcia
 """
 
 
+from pyproj import Proj
 from Map_class import Map
 
 
 def get_utm_zone(lon):
     """Calculate UTM zone number."""
-    return int(1 + (lon + 180.0) / 6.0)
+    zone = int(1 + (lon + 180.0) / 6.0)
+    return zone
 
 
-def is_south(lat):
-    """Is location in southern hemisphere?"""
-    return bool(lat < 0.0)
+def lat_lon_to_utm(lat, lon):
+    UTM_zone = get_utm_zone(lon)
+    proj = Proj(proj="utm", zone=UTM_zone, ellps="WGS84", south=bool(lat < 0))
+    easting, northing = proj(lon, lat)
+    return easting, northing
+
+
+def utm_to_lat_lon(easting, northing, UTM_zone):
+    proj = Proj(proj="utm", zone=UTM_zone, ellps="WGS84", south=bool(northing < 0))
+    lon, lat = proj(easting, northing, inverse=True)
+    return lat, lon
 
 
 def setup_topo_map(sim):
