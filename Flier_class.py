@@ -13,10 +13,9 @@ Copyright (C) 2019-2021 by Matthew Garcia
 from datetime import timedelta, timezone as tz
 import numpy as np
 import pandas as pd
-from pyproj import Proj
+from Geography import lat_lon_to_utm, utm_to_lat_lon
 from Map_class import lc_category
 from Plots_gen import plot_single_flight
-from Geography import get_utm_zone, is_south
 
 
 class Flier(object):
@@ -39,10 +38,7 @@ class Flier(object):
         self.lat = flier_location[0]
         self.lon = flier_location[1]
         self.alt_AGL = 0.0
-        self.UTM_zone = get_utm_zone(self.lon)
-        proj = Proj(proj="utm", zone=self.UTM_zone, ellps="WGS84",
-                    south=is_south(self.lat))
-        self.easting, self.northing = proj(self.lon, self.lat)
+        self.easting, self.northing, self.UTM_zone = lat_lon_to_utm(self.lat, self.lon)
         self.sfc_elev = 0.0
         self.alt_MSL = self.sfc_elev + self.alt_AGL
         self.calc_GpH()
@@ -243,9 +239,7 @@ class Flier(object):
             self.flight_distance += np.sqrt(x_dist**2 + y_dist**2 + z_dist**2)
             self.easting += x_dist
             self.northing += y_dist
-            proj = Proj(proj="utm", zone=self.UTM_zone, ellps="WGS84",
-                        south=is_south(self.lat))
-            self.lon, self.lat = proj(self.easting, self.northing, inverse=True)
+            self.lat, self.lon = utm_to_lat_lon(self.easting, self.northing, self.UTM_zone)
             self.alt_MSL += z_dist
             self.calc_GpH()
         return
