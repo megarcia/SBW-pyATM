@@ -19,7 +19,7 @@ from Flier_setup import read_flier_locations_attributes
 from Flier_setup import generate_flier_locations, generate_flier_attributes
 from Flier_setup import calc_circadian_from_WRF_T, assign_circadian
 from Flier_summary import summarize_locations
-from Sun_Times import update_suntimes
+from Solar_calculations import update_suntimes
 
 
 def command_line_args(sim, args):

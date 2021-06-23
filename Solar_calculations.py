@@ -196,4 +196,4 @@ if __name__ == "__main__":
     # print s.sunrise() < s.sunset()
     # print s.sunset() < s.solarnoon()
 
-# end Sun_Times.py
+# end Solar_calculations.py

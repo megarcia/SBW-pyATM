@@ -14,7 +14,7 @@ import copy
 from datetime import timedelta
 from WRFgrids_class import WRFgrids
 from Interpolate import interpolate_time
-from Sun_Times import update_suntimes
+from Solar_calculations import update_suntimes
 
 
 def advance_clock(sim, date_time):
