@@ -25,7 +25,7 @@ def lat_lon_to_utm(lat, lon):
     UTM_zone = get_utm_zone(lon)
     proj = Proj(proj="utm", zone=UTM_zone, ellps="WGS84", south=bool(lat < 0))
     easting, northing = proj(lon, lat)
-    return easting, northing
+    return easting, northing, UTM_zone
 
 
 def utm_to_lat_lon(easting, northing, UTM_zone):
