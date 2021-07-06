@@ -10,9 +10,6 @@ Copyright (C) 2021 by Matthew Garcia
 """
 
 
-from datetime import datetime, timezone as tz
-
-
 class Simulation(object):
     """Declare simulation boundaries, settings, parameters, etc."""
 
@@ -33,9 +30,19 @@ class Simulation(object):
         self.grid_UTM_zone = 19
         self.grid_dx, self.grid_dy = 1000.0, 1000.0  # [m]
         #
-        # simulation times (in UTC)
-        self.start_time = datetime(2013, 7, 15, 21, 0, 0, tzinfo=tz.utc)  # Y, M, D, h, m, s
-        self.end_time = datetime(2013, 7, 16, 10, 0, 0, tzinfo=tz.utc)  # Y, M, D, h, m, s
+        # simulation start time (in UTC)
+        self.start_year = 2013
+        self.start_month = 7
+        self.start_day = 15
+        self.start_hour = 21
+        self.start_minute = 0
+        #
+        # simulation end time (in UTC)
+        self.end_year = 2013
+        self.end_month = 7
+        self.end_day = 16
+        self.end_hour = 10
+        self.end_minute = 0
         #
         # other simulation time specifications
         self.dt = 60                  # [s]
