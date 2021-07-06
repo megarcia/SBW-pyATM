@@ -65,7 +65,7 @@ def ATM_main():
     radar = setup_radar(sim)
     #
     # initialize and define collection of fliers
-    all_fliers = setup_fliers(sim, sbw, last_wrf_grids, topography,
+    all_fliers = setup_fliers(sim, clock, sbw, last_wrf_grids, topography,
                               landcover, defoliation)
     #
     # summarize flier locations
@@ -116,7 +116,7 @@ def ATM_main():
             wrf_grids_updated = True
         #
         # update and summarize all active flier locations
-        n_moving_fliers = update_flier_locations(sim, clock, all_fliers)
+        n_moving_fliers = update_flier_locations(clock, all_fliers)
         flier_locations = summarize_locations(clock, all_fliers)
         #
         # update flier environments

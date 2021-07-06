@@ -17,6 +17,7 @@ from datetime import datetime, time, timedelta, timezone as tz
 from numpy import cos, sin, arccos, arcsin, tan
 from numpy import rad2deg as deg
 from numpy import deg2rad as rad
+from Clock import Clock
 
 
 class Sun(object):
@@ -34,6 +35,13 @@ class Sun(object):
         self.lat = lat
         self.lon = lon
         self.UTC_offset = UTC_offset
+        self.day = None
+        self.date = None
+        self.time_frac = None
+        self.timezone = UTC_offset
+        self.solarnoon_t = None
+        self.sunset_t = None
+        self.sunrise_t = None
 
     def sunrise(self, when=None):
         """
@@ -108,7 +116,6 @@ class Sun(object):
         t = when.time()
         self.date = when.date()
         self.time_frac = (t.hour + t.minute / 60.0 + t.second / 3600.0) / 24.0
-        self.timezone = self.UTC_offset
         offset = when.utcoffset()
         if offset is not None:
             self.timezone = offset.seconds / 3600.0 + (offset.days * 24.0)
@@ -127,7 +134,8 @@ class Sun(object):
         Manom = 357.52911 + Jcent * (35999.05029 - 0.0001537 * Jcent)
         Mlong = 280.46646 + Jcent * (36000.76983 + Jcent * 0.0003032) % 360.0
         Eccent = 0.016708634 - Jcent * (0.000042037 + 0.0001537 * Jcent)
-        Mobliq = 23.0 + (26.0 + (21.448 - Jcent * (46.815 + Jcent * (0.00059 - Jcent * 0.001813))) / 60.0) / 60.0
+        Mobliq = 23.0 + (26.0 + (21.448 - Jcent *
+                                 (46.815 + Jcent * (0.00059 - Jcent * 0.001813))) / 60.0) / 60.0
         obliq = Mobliq + 0.00256 * cos(rad(125.04 - 1934.136 * Jcent))
         vary = tan(rad(obliq / 2.0)) * tan(rad(obliq / 2.0))
         Seqcent = sin(rad(Manom)) * (1.914602 - Jcent * (0.004817 + 0.000014 * Jcent)) \
@@ -147,46 +155,46 @@ class Sun(object):
         self.sunset_t = self.solarnoon_t + hourangle * 4.0 / 1440.0
 
 
-def test(sim):
+def test(sim, clock):
+    """Run a quick test for sunset/sunrise times at the specified radar location."""
     print()
     print('at XAM radar location:')
     print()
-    sun = Sun(lat=sim.radar_lat, lon=sim.radar_lon, UTC_offset=sim.UTC_offset)
-    print('start =', sim.start_time)
-    local_sunset_time = sun.sunset(when=sim.start_time) + timedelta(hours=sim.UTC_offset)
+    sun = Sun(lat=sim.radar_lat, lon=sim.radar_lon, UTC_offset=clock.UTC_offset)
+    print('start =', clock.start_dt_str)
+    local_sunset_time = sun.sunset(when=clock.start_dt) + timedelta(hours=clock.UTC_offset)
     print('local sunset = ', local_sunset_time)
-    utc_sunset_time = local_sunset_time - timedelta(hours=sim.UTC_offset)
+    utc_sunset_time = local_sunset_time - timedelta(hours=clock.UTC_offset)
     print('UTC sunset = ', utc_sunset_time)
     print()
-    print('end =', sim.end_time)
-    local_sunrise_time = sun.sunrise(when=sim.end_time) + timedelta(hours=sim.UTC_offset)
+    print('end =', clock.end_dt_str)
+    local_sunrise_time = sun.sunrise(when=clock.end_dt) + timedelta(hours=clock.UTC_offset)
     print('local sunrise = ', local_sunrise_time)
-    utc_sunrise_time = local_sunrise_time - timedelta(hours=sim.UTC_offset)
+    utc_sunrise_time = local_sunrise_time - timedelta(hours=clock.UTC_offset)
     print('UTC sunrise = ', utc_sunrise_time)
     print()
-    return
 
 
-def update_suntimes(sim, flier):
+def update_suntimes(clock, flier):
     """Update sunset/sunrise times based on location."""
-    sun = Sun(lat=flier.lat, lon=flier.lon, UTC_offset=sim.UTC_offset)
-    flier.local_sunset_time = sun.sunset(when=sim.start_time) + \
-                              timedelta(hours=sim.UTC_offset)
+    sun = Sun(lat=flier.lat, lon=flier.lon, UTC_offset=clock.UTC_offset)
+    flier.local_sunset_time = sun.sunset(when=clock.start_time) + \
+                              timedelta(hours=clock.UTC_offset)
     flier.utc_sunset_time = flier.local_sunset_time - \
-                            timedelta(hours=sim.UTC_offset)
+                            timedelta(hours=clock.UTC_offset)
     flier.utc_sunset_time = flier.utc_sunset_time.replace(tzinfo=tz.utc)
-    flier.local_sunrise_time = sun.sunrise(when=sim.end_time) + \
-                               timedelta(hours=sim.UTC_offset)
+    flier.local_sunrise_time = sun.sunrise(when=clock.end_time) + \
+                               timedelta(hours=clock.UTC_offset)
     flier.utc_sunrise_time = flier.local_sunrise_time - \
-                             timedelta(hours=sim.UTC_offset)
+                             timedelta(hours=clock.UTC_offset)
     flier.utc_sunrise_time = flier.utc_sunrise_time.replace(tzinfo=tz.utc)
-    return
 
 
 if __name__ == "__main__":
     from Simulation_specifications import Simulation
     sim = Simulation()
-    test(sim)
+    clock = Clock(sim)
+    test(sim, clock)
     #
     # s = Sun(lat=43.058923, lon=-89.502096, UTC_offset=-5.0)  # Madison, WI
     # print 'today is %s' % datetime.today()

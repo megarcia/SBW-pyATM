@@ -92,14 +92,14 @@ def interpolate_flier_environments(clock, fliers, environments_last,
     return
 
 
-def update_flier_locations(sim, clock, fliers):
+def update_flier_locations(clock, fliers):
     """Update locations of all fliers (using flier motion)."""
     print('%s : updating flier locations' % clock.current_dt_str)
     n_moving = 0
     for flier in fliers.values():
         if flier.active:
             flier.update_location(clock)
-            update_suntimes(sim, flier)
+            update_suntimes(clock, flier)
             if flier.state in ['LIFTOFF', 'FLIGHT', 'LANDING_S',
                                'LANDING_W', 'LANDING_T', 'LANDING_P']:
                 n_moving += 1

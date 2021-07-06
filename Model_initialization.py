@@ -94,7 +94,7 @@ def setup_radar(sim):
     return radar  # Map object
 
 
-def setup_fliers(sim, sbw, last_wrf_grids, topography, landcover, defoliation):
+def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defoliation):
     """Initialize and define collection of fliers."""
     if sim.use_defoliation:
         # assign flier locations and attributes using defoliation map and empirical eqns
@@ -115,11 +115,11 @@ def setup_fliers(sim, sbw, last_wrf_grids, topography, landcover, defoliation):
     fliers = dict()
     for f, f_available_idx in enumerate(selected_fliers):
         flier_idx = sim.simulation_number * sim.n_fliers * 10 + f
-        flier_id = '%d%s%s_%s' % (sim.start_time.year, str(sim.start_time.month).zfill(2),
-                                  str(sim.start_time.day).zfill(2), str(flier_idx).zfill(9))
+        flier_id = '%d%s%s_%s' % (sim.start_year, str(sim.start_month).zfill(2),
+                                  str(sim.start_day).zfill(2), str(flier_idx).zfill(9))
         fliers[flier_id] = Flier(sim, sbw, flier_id, flier_locations[f_available_idx],
                                  flier_attributes[f_available_idx])
-        update_suntimes(sim, fliers[flier_id])
+        update_suntimes(clock, fliers[flier_id])
     n_female = sum(flier.sex for flier in fliers.values())
     n_male = sim.n_fliers - n_female
     print('initial setup : %d Flier objects initialized (%d F, %d M)' %
