@@ -13,7 +13,7 @@ Copyright (C) 2019, 2020 by Matthew Garcia
 import warnings
 import numpy as np
 from pyproj import Proj
-from Geography import get_utm_zone, is_south
+from Geography import get_utm_zone
 
 
 class Radar(object):
@@ -27,7 +27,7 @@ class Radar(object):
         self.lon = sim.radar_lon
         self.UTM_zone = get_utm_zone(self.lon)
         proj = Proj(proj="utm", zone=self.UTM_zone, ellps="WGS84",
-                    south=is_south(self.lat))
+                    south=bool(self.lat < 0))
         self.easting, self.northing = proj(self.lon, self.lat)
         #
         # coverage grid definition
@@ -51,10 +51,10 @@ class Radar(object):
         """Convert Flier motion to polar components centered on radar."""
         if UTM_zone != self.UTM_zone:
             proj1 = Proj(proj="utm", zone=UTM_zone, ellps="WGS84",
-                         south=is_south(self.lat))
+                         south=bool(self.lat < 0))
             lon, lat = proj1(easting, northing, inverse=True)
             proj2 = Proj(proj="utm", zone=self.UTM_zone, ellps="WGS84",
-                         south=is_south(self.lat))
+                         south=bool(self.lat < 0))
             easting, northing = proj2(lon, lat)
         x_dist = easting - self.easting
         y_dist = northing - self.northing
