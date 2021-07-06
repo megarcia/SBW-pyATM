@@ -6,14 +6,14 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019-2021 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
 from datetime import timedelta, timezone as tz
 import numpy as np
 import pandas as pd
-from Geography import lat_lon_to_utm, utm_to_lat_lon
+from Geography import lat_lon_to_utm, utm_to_lat_lon, inside_grid
 from Map_class import lc_category
 from Plots_gen import plot_single_flight
 
@@ -255,15 +255,7 @@ class Flier(object):
 
     def inside_grid(self, sim):
         """Check if moth is still within the simulation boundaries."""
-        if self.lat < sim.grid_min_lat:
-            return False
-        if self.lat > sim.grid_max_lat:
-            return False
-        if self.lon < sim.grid_min_lon:
-            return False
-        if self.lon > sim.grid_max_lon:
-            return False
-        return True
+        return inside_grid(sim, self.lat, self.lon)
 
     def update_nu(self, sim, sbw):
         """Calculate wingbeat frequency."""

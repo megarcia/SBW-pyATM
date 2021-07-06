@@ -33,4 +33,30 @@ def utm_to_lat_lon(easting, northing, UTM_zone):
     lon, lat = proj(easting, northing, inverse=True)
     return lat, lon
 
+
+def inside_grid(sim, lat, lon):
+    """Check if moth is still within the simulation boundaries."""
+    if lat < sim.grid_min_lat:
+        return False
+    if lat > sim.grid_max_lat:
+        return False
+    if lon < sim.grid_min_lon:
+        return False
+    if lon > sim.grid_max_lon:
+        return False
+    return True
+
+
+def inside_init_box(sim, lat, lon):
+    """Check if moth is within the desired initialization box."""
+    if lat < sim.init_flier_min_lat:
+        return False
+    if lat > sim.init_flier_max_lat:
+        return False
+    if lon < sim.init_flier_min_lon:
+        return False
+    if lon > sim.init_flier_max_lon:
+        return False
+    return True
+
 # end Geography.py

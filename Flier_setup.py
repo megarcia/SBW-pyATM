@@ -6,7 +6,7 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019-2021 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
@@ -14,34 +14,9 @@ from datetime import datetime, timedelta, timezone as tz
 import numpy as np
 import pandas as pd
 from Interpolate import get_interp_vals_2D, interpolate_time
+from Geography import inside_grid, inside_init_box
 from Map_class import lc_category
 from WRFgrids_class import check_for_WRF_file, WRFgrids
-
-
-def inside_grid(sim, lat, lon):
-    """Check if moth is still within the simulation boundaries."""
-    if lat < sim.grid_min_lat:
-        return False
-    if lat > sim.grid_max_lat:
-        return False
-    if lon < sim.grid_min_lon:
-        return False
-    if lon > sim.grid_max_lon:
-        return False
-    return True
-
-
-def inside_init_box(sim, lat, lon):
-    """Check if moth is within the desired initialization box."""
-    if lat < sim.init_flier_min_lat:
-        return False
-    if lat > sim.init_flier_max_lat:
-        return False
-    if lon < sim.init_flier_min_lon:
-        return False
-    if lon > sim.init_flier_max_lon:
-        return False
-    return True
 
 
 def read_flier_locations_attributes(sim):
@@ -234,7 +209,8 @@ def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover
             datetime(sim.start_time.year, sim.start_time.month, sim.start_time.day,
                      circadian_ref_hh, circadian_ref_mm1, 0) \
             - timedelta(hours=sim.UTC_offset)  # datetime object in UTC
-        circadian_ref_grids1 = WRFgrids(circadian_ref_time1, sim.WRF_input_path, sim.WRF_grid, dt_str)
+        circadian_ref_grids1 = WRFgrids(circadian_ref_time1, sim.WRF_input_path,
+                                        sim.WRF_grid, dt_str)
         print('%s : WRF %s grids object initialized' %
                 (dt_str, str(circadian_ref_time1.isoformat())))
         print('%s : querying potential flier environments' % dt_str)
@@ -243,7 +219,8 @@ def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover
                                                         topography, landcover)
         circadian_ref_time2 = circadian_ref_time1 \
             + timedelta(minutes=sim.WRF_input_interval)  # datetime object in UTC
-        circadian_ref_grids2 = WRFgrids(circadian_ref_time2, sim.WRF_input_path, sim.WRF_grid, dt_str)
+        circadian_ref_grids2 = WRFgrids(circadian_ref_time2, sim.WRF_input_path,
+                                        sim.WRF_grid, dt_str)
         print('%s : WRF %s grids object initialized' %
                 (dt_str, str(circadian_ref_time2.isoformat())))
         print('%s : querying potential flier environments' % dt_str)
