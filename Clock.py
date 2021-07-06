@@ -20,7 +20,7 @@ class Clock():
         self.start_dt = sim.start_time
         self.start_dt_str = self.start_dt.isoformat()
         self.end_dt = sim.end_time
-        self.start_dt_str = self.start_dt.isoformat()
+        self.end_dt_str = self.end_dt.isoformat()
         self.dt_interval = sim.dt
         self.current_dt = sim.start_time
         self.current_dt_str = self.current_dt.isoformat()
