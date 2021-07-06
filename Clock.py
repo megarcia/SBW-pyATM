@@ -24,11 +24,13 @@ class Clock():
         self.dt_interval = sim.dt
         self.current_dt = sim.start_time
         self.current_dt_str = self.current_dt.isoformat()
+        self.elapsed_time = self.current_dt - self.start_dt
 
     def advance_clock(self):
         """Advance simulation time by dt_interval, in seconds."""
         print('%s : advancing clock, dt = %d seconds' % (self.current_dt_str, self.dt_interval))
         self.current_dt += timedelta(seconds=self.dt_interval)
         self.current_dt_str = self.current_dt.isoformat()
+        self.elapsed_time = self.current_dt - self.start_dt
 
 # end Clock.py
