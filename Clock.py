@@ -13,7 +13,7 @@ Copyright (C) 2021 by Matthew Garcia
 from datetime import datetime, timedelta, timezone
 
 
-class Clock():
+class Clock:
     """Simulation clock in UTC."""
 
     def __init__(self, sim):

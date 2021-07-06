@@ -17,7 +17,6 @@ from datetime import datetime, time, timedelta, timezone as tz
 from numpy import cos, sin, arccos, arcsin, tan
 from numpy import rad2deg as deg
 from numpy import deg2rad as rad
-from Clock import Clock
 
 
 class Sun(object):
@@ -155,8 +154,27 @@ class Sun(object):
         self.sunset_t = self.solarnoon_t + hourangle * 4.0 / 1440.0
 
 
-def test(sim, clock):
+def update_suntimes(clock, flier):
+    """Update sunset/sunrise times based on location."""
+    sun = Sun(lat=flier.lat, lon=flier.lon, UTC_offset=clock.UTC_offset)
+    flier.local_sunset_time = sun.sunset(when=clock.start_time) + \
+        timedelta(hours=clock.UTC_offset)
+    flier.utc_sunset_time = flier.local_sunset_time - \
+        timedelta(hours=clock.UTC_offset)
+    flier.utc_sunset_time = flier.utc_sunset_time.replace(tzinfo=tz.utc)
+    flier.local_sunrise_time = sun.sunrise(when=clock.end_time) + \
+        timedelta(hours=clock.UTC_offset)
+    flier.utc_sunrise_time = flier.local_sunrise_time - \
+        timedelta(hours=clock.UTC_offset)
+    flier.utc_sunrise_time = flier.utc_sunrise_time.replace(tzinfo=tz.utc)
+
+
+def test():
     """Run a quick test for sunset/sunrise times at the specified radar location."""
+    from Simulation_specifications import Simulation
+    from Clock import Clock
+    sim = Simulation()
+    clock = Clock(sim)
     print()
     print('at XAM radar location:')
     print()
@@ -175,26 +193,8 @@ def test(sim, clock):
     print()
 
 
-def update_suntimes(clock, flier):
-    """Update sunset/sunrise times based on location."""
-    sun = Sun(lat=flier.lat, lon=flier.lon, UTC_offset=clock.UTC_offset)
-    flier.local_sunset_time = sun.sunset(when=clock.start_time) + \
-                              timedelta(hours=clock.UTC_offset)
-    flier.utc_sunset_time = flier.local_sunset_time - \
-                            timedelta(hours=clock.UTC_offset)
-    flier.utc_sunset_time = flier.utc_sunset_time.replace(tzinfo=tz.utc)
-    flier.local_sunrise_time = sun.sunrise(when=clock.end_time) + \
-                               timedelta(hours=clock.UTC_offset)
-    flier.utc_sunrise_time = flier.local_sunrise_time - \
-                             timedelta(hours=clock.UTC_offset)
-    flier.utc_sunrise_time = flier.utc_sunrise_time.replace(tzinfo=tz.utc)
-
-
 if __name__ == "__main__":
-    from Simulation_specifications import Simulation
-    sim = Simulation()
-    clock = Clock(sim)
-    test(sim, clock)
+    test()
     #
     # s = Sun(lat=43.058923, lon=-89.502096, UTC_offset=-5.0)  # Madison, WI
     # print 'today is %s' % datetime.today()

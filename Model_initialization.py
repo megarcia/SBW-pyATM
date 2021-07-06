@@ -57,12 +57,12 @@ def command_line_args(sim, args):
             sim.delta_nu = var_value
             print('initial setup : using %s = %.2f' % (var_name, var_value))
         print('initial setup : simulation number %s in experiment collection' %
-                args[4].zfill(5))
+              args[4].zfill(5))
         sim.simulation_number = int(args[4])
     else:
         print('initial setup : using default values for all parameters')
         print('initial setup : simulation number %s in experiment collection' %
-                args[1].zfill(5))
+              args[1].zfill(5))
         sim.simulation_number = int(args[1])
     return
 
@@ -123,7 +123,7 @@ def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defolia
     n_female = sum(flier.sex for flier in fliers.values())
     n_male = sim.n_fliers - n_female
     print('initial setup : %d Flier objects initialized (%d F, %d M)' %
-            (sim.n_fliers, n_female, n_male))
+          (sim.n_fliers, n_female, n_male))
     #
     # summarize flier locations
     flier_locations = summarize_locations(fliers, 'initial setup')

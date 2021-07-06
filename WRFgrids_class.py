@@ -83,6 +83,7 @@ class WRFgrids(object):
 
     def get_WRF_grid_by_name(self, grid_name):
         """Isolate WRF grid by name."""
+        grid = None
         if grid_name == 'topography':
             grid = self.topography
         elif grid_name == 'landcover':

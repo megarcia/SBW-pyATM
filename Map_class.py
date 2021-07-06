@@ -57,12 +57,12 @@ class Map(object):
         elif self.subset == 0:
             self.map = self.map_grid
             print('initial setup : resulting map dimensions: %s' %
-                    str(np.shape(self.map)))
+                  str(np.shape(self.map)))
         elif self.subset == 1:
             print('initial setup : subsetting map to specified simulation boundaries')
             self.map = self.subset_grid(sim.grid_bounds)
             print('initial setup : resulting map dimensions: %s' %
-                    str(np.shape(self.map)))
+                  str(np.shape(self.map)))
             self.SW_lat = sim.grid_bounds[0]
             self.SW_lon = sim.grid_bounds[1]
             self.NE_lat = sim.grid_bounds[2]
@@ -92,6 +92,7 @@ class Map(object):
             boundaries[3] = 1
         elif self.NE_lon < sim.grid_max_lon:
             boundaries[3] = -1
+        subset = 0
         if min(boundaries) == -1:
             subset = -1
         elif max(boundaries) == 1:

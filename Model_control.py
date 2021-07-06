@@ -169,7 +169,7 @@ def ATM_main():
     # end-of-simulation report on remaining activity
     n_active_fliers = count_active_fliers(sim, clock, all_fliers, output=False)
     print('%s : simulation ended with %d active fliers (of %d specified)' %
-            (clock.current_dt_str, n_active_fliers, sim.n_fliers))
+          (clock.current_dt_str, n_active_fliers, sim.n_fliers))
     print()
     if n_active_fliers:
         trajectories, egg_deposition = \
