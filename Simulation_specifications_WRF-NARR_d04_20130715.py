@@ -6,7 +6,7 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019-2021 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
@@ -51,7 +51,7 @@ class Simulation(object):
         #
         # BioSIM-derived moth morphological information, if provided
         self.biosim_fname = '2013_BioSIM_SBW_output.csv'  # for now
-        self.use_initial_flier_polygon = True
+        self.use_initial_flier_polygon = False
         self.init_flier_min_lat, self.init_flier_max_lat = 48.5, 50.5
         self.init_flier_min_lon, self.init_flier_max_lon = -70.0, -67.0
         #
@@ -64,13 +64,8 @@ class Simulation(object):
         # hinterp options: 'nearest', 'linear', 'cubic' (splines)
         self.WRF_hinterp = 'nearest'
         #
-        # circadian parameters (not calibrated)
-        self.threshold_T = 25.4         # [C] no flight until evening gets below this temperature
-        # circadian options: True requires ref_time, False requires delta_s and delta_f
+        # circadian options: True uses ref_time, False uses delta_s and delta_f
         self.calculate_circadian_from_WRF = True
-        self.circadian_ref_time = 19.5  # [h] [LDT]
-        self.circadian_delta_s = 1.0    # [h]
-        self.circadian_delta_f = 5.0    # [h]
         #
         # calibration flight parameters
         # maximum precipitation rate for liftoff

@@ -6,7 +6,7 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019-2021 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
@@ -41,12 +41,12 @@ class SBW(object):
         # oviposition (to be replaced with temperature-based formulation)
         self.F_frac_per_brood = 0.5      # fraction of remaining fecundity laid
         # mass including fecundity effects from Regniere et al. [2019]
-        self.M_F_c1 = 0.9736             # G coefficient, mass calculation using gravidity [kg]
-        self.M_F_c2 = 2.14               # A coefficient, mass calculation using gravidity [kg]
-        self.M_F_c3 = 1.3049             # G*A coefficient, mass calculation using gravidity [kg]
-        self.M_F_c4 = -6.4648            # intercept, mass calculation using gravidity [kg]
-        self.M_F_err_mean = 1.0          # lognormal error mean, mass calculation using gravidity [kg]
-        self.M_F_err_stdv = 0.16         # lognormal error stdv, mass calculation using gravidity [kg]
+        self.M_F_c1 = 0.9736             # G coefficient, mass calc using gravidity [kg]
+        self.M_F_c2 = 2.14               # A coefficient, mass calc using gravidity [kg]
+        self.M_F_c3 = 1.3049             # G*A coefficient, mass calc using gravidity [kg]
+        self.M_F_c4 = -6.4648            # intercept, mass calc using gravidity [kg]
+        self.M_F_err_mean = 1.0          # lognormal error mean, mass calc using gravidity [kg]
+        self.M_F_err_stdv = 0.16         # lognormal error stdv, mass calc using gravidity [kg]
         # wingbeat frequency coefficients
         self.K_coeff = 167.5             # from Regniere et al. [2019] [-]
         self.nu_max = 72.5               # from Regniere et al. [2019] [Hz]
@@ -56,6 +56,10 @@ class SBW(object):
         self.D_coeff = 117.0             # from Nealis and Regniere [2004]
         self.F_intercept = 216.8         # from Nealis and Regniere [2004]
         # circadian rhythm coefficients from Regniere et al. [2019]
+        self.threshold_T = 25.4          # [C] no flight until evening gets below this temperature
+        self.circadian_ref_time = 19.5   # [h] [LDT]
+        self.circadian_delta_s = 1.0     # [h]
+        self.circadian_delta_f = 5.0     # [h]
         self.circadian_p1_mean = -3.8    # [h]
         self.circadian_p1_stdv = 0.7     # [h]
         self.circadian_p2_mean = 0.145   # [h/C]

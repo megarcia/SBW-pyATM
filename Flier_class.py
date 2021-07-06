@@ -136,14 +136,15 @@ class Flier(object):
         self.circadian_T_ref = circadian_T_ref
         if sim.calculate_circadian_from_WRF:
             deltas = sbw.calc_circadian_deltas(self.circadian_T_ref)
+            self.circadian_delta_s = deltas[0]
+            self.circadian_delta_0 = deltas[1]
+            self.circadian_delta_f = deltas[2]
+            self.circadian_delta_f_potential = deltas[3]
         else:
-            deltas = [sim.circadian_delta_s,
-                      0.5 * sim.circadian_delta_f,
-                      sim.circadian_delta_f, 0.0]
-        self.circadian_delta_s = deltas[0]
-        self.circadian_delta_0 = deltas[1]
-        self.circadian_delta_f = deltas[2]
-        self.circadian_delta_f_potential = deltas[3]
+            self.circadian_delta_s = sbw.circadian_delta_s
+            self.circadian_delta_0 = 0.5 * sbw.circadian_delta_f
+            self.circadian_delta_f = sbw.circadian_delta_f
+            self.circadian_delta_f_potential = 0.0
         #
         self.local_t_c = self.local_sunset_time + \
                          timedelta(hours=self.circadian_delta_s)
@@ -417,13 +418,13 @@ class Flier(object):
             self.alt_AGL = self.alt_MSL - self.sfc_elev
         return
 
-    def liftoff_conditions(self, sim):
+    def liftoff_conditions(self, sim, sbw):
         """Evaluate liftoff conditions and triggers."""
         if self.Precip >= sim.max_precip:  # no liftoff in heavy rain
             return False
         if self.W < 0.0:  # no liftoff in a downdraft (for later)
             return False
-        if self.T > sim.threshold_T:  # no liftoff if T too high (torpor)
+        if self.T > sbw.threshold_T:  # no liftoff if T too high (torpor)
             return False
         windspeed = np.sqrt(self.U**2 + self.V**2)
         if windspeed < sim.min_windspeed:  # no liftoff in calm wind
@@ -475,7 +476,7 @@ class Flier(object):
                 self.update_state('SUNRISE')
             # liftoff
             if self.state not in ['SUNRISE', 'SPENT']:
-                if self.liftoff_conditions(sim):
+                if self.liftoff_conditions(sim, sbw):
                     if self.nflights == self.max_nflights:
                         self.update_state('MAXFLIGHTS')
                     else:

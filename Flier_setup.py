@@ -181,8 +181,8 @@ def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover
     """Calculate flier circadian attributes using WRF-based temperatures."""
     dt_str = 'initial setup'
     print('%s : calculating flier circadian attributes' % dt_str)
-    circadian_ref_hh = int(sim.circadian_ref_time)
-    circadian_ref_mm = int(60 * (sim.circadian_ref_time - circadian_ref_hh))
+    circadian_ref_hh = int(sbw.circadian_ref_time)
+    circadian_ref_mm = int(60 * (sbw.circadian_ref_time - circadian_ref_hh))
     circadian_ref_time = \
         datetime(sim.start_time.year, sim.start_time.month, sim.start_time.day,
                  circadian_ref_hh, circadian_ref_mm, 0) \
