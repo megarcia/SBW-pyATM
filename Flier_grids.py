@@ -6,17 +6,16 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019, 2020 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
 import numpy as np
 import pandas as pd
 from pyproj import Proj
-from Geography import is_south
 
 
-def grid_flier_locations(sim, radar, locations, date_time):
+def grid_flier_locations(sim, clock, radar, locations):
     """Count Fliers and generate/save radar-relative grid."""
     north_upa = list()
     east_upa = list()
@@ -26,23 +25,23 @@ def grid_flier_locations(sim, radar, locations, date_time):
             east_upa.append(location[6])
     if north_upa:
         upa_grid = radar.count_grid(north_upa, east_upa)
-        dt_str = str(date_time.isoformat())
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/dens_%s_%s_%s_%s_grid.npy' % \
                 (sim.simulation_name, str(sim.experiment_number).zfill(2),
-                 str(sim.simulation_number).zfill(5), dt_str,
+                 str(sim.simulation_number).zfill(5), clock.current_dt_str,
                  str(sim.experiment_number).zfill(2),
                  str(sim.simulation_number).zfill(5), radar.radar_id)
         else:
             outfname = '%s_simulation_%s_summary/dens_%s_%s_%s_grid.npy' % \
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
-                 dt_str, str(sim.simulation_number).zfill(5), radar.radar_id)
+                 clock.current_dt_str, str(sim.simulation_number).zfill(5),
+                 radar.radar_id)
         np.save(outfname, upa_grid)
-        print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+        print('%s UTC : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
     return
 
 
-def grid_flier_dvels(sim, radar, locations, date_time):
+def grid_flier_dvels(sim, clock, radar, locations):
     """Average Flier doppler velocity and generate/save radar-relative grid."""
     north_upa = list()
     east_upa = list()
@@ -54,26 +53,26 @@ def grid_flier_dvels(sim, radar, locations, date_time):
             dvel_upa.append(location[11])
     if north_upa:
         upa_grid = radar.average_grid(north_upa, east_upa, dvel_upa)
-        dt_str = str(date_time.isoformat())
         if sim.experiment_number:
             outfname = '%s_simulation_%s_%s_summary/dvel_%s_%s_%s_%s_grid.npy' % \
                 (sim.simulation_name, str(sim.experiment_number).zfill(2),
-                 str(sim.simulation_number).zfill(5), dt_str,
+                 str(sim.simulation_number).zfill(5), clock.current_dt_str,
                  str(sim.experiment_number).zfill(2),
                  str(sim.simulation_number).zfill(5), radar.radar_id)
         else:
             outfname = '%s_simulation_%s_summary/dvel_%s_%s_%s_grid.npy' % \
                 (sim.simulation_name, str(sim.simulation_number).zfill(5),
-                 dt_str, str(sim.simulation_number).zfill(5), radar.radar_id)
+                 clock.current_dt_str, str(sim.simulation_number).zfill(5),
+                 radar.radar_id)
         np.save(outfname, upa_grid)
-        print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+        print('%s UTC : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
     return
 
 
 def create_fill_grids(sim, df):
     """Generate and fill liftoff/landing grids."""
     proj = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84",
-                south=is_south(sim.grid_min_lat))
+                south=bool(sim.grid_min_lat < 0.0))
     grid_sw_east, grid_sw_north = proj(sim.grid_min_lon, sim.grid_min_lat)
     grid_ne_east, grid_ne_north = proj(sim.grid_max_lon, sim.grid_max_lat)
     grid_nrows = int((grid_ne_north - grid_sw_north) / sim.grid_dy)
@@ -93,10 +92,10 @@ def create_fill_grids(sim, df):
     for i, female in enumerate(sex):
         if UTM_zone[i] != sim.grid_UTM_zone:
             proj1 = Proj(proj="utm", zone=UTM_zone[i], ellps="WGS84",
-                         south=is_south(sim.grid_min_lat))
+                         south=bool(sim.grid_min_lat < 0.0))
             lon, lat = proj1(east[i], north[i], inverse=True)
             proj2 = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84",
-                         south=is_south(sim.grid_min_lat))
+                         south=bool(sim.grid_min_lat < 0.0))
             east[i], north[i] = proj2(lon, lat)
         r = int(round((north[i] - grid_sw_north) / sim.grid_dy))
         c = int(round((east[i] - grid_sw_east) / sim.grid_dx))
@@ -277,7 +276,8 @@ def grid_egg_deposition(sim, egg_deposition):
     print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
     #
     if sim.npy_grids:
-        proj = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84", south=is_south(sim.grid_min_lat))
+        proj = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84",
+                    south=bool(sim.grid_min_lat < 0.0))
         grid_sw_east, grid_sw_north = proj(sim.grid_min_lon, sim.grid_min_lat)
         grid_ne_east, grid_ne_north = proj(sim.grid_max_lon, sim.grid_max_lat)
         grid_nrows = int((grid_ne_north - grid_sw_north) / sim.grid_dy)
@@ -285,9 +285,11 @@ def grid_egg_deposition(sim, egg_deposition):
         eggs_grid = np.zeros((grid_nrows, grid_ncols))
         for location in egg_deposition.values():
             if location[2] != sim.grid_UTM_zone:
-                proj1 = Proj(proj="utm", zone=location[2], ellps="WGS84", south=is_south(sim.grid_min_lat))
+                proj1 = Proj(proj="utm", zone=location[2], ellps="WGS84",
+                             south=bool(sim.grid_min_lat < 0.0))
                 lon, lat = proj1(location[3], location[4], inverse=True)
-                proj2 = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84", south=is_south(sim.grid_min_lat))
+                proj2 = Proj(proj="utm", zone=sim.grid_UTM_zone, ellps="WGS84",
+                             south=bool(sim.grid_min_lat < 0.0))
                 location[3], location[4] = proj2(lon, lat)
             r = int(round((location[4] - grid_sw_north) / sim.grid_dy))
             c = int(round((location[3] - grid_sw_east) / sim.grid_dx))

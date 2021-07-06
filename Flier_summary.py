@@ -6,7 +6,7 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019-2021 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
@@ -18,9 +18,9 @@ from Flier_grids import grid_flier_locations, grid_flier_dvels
 from Plots_gen import plot_all_flights
 
 
-def summarize_locations(fliers, dt_str):  # dict, str
+def summarize_locations(clock, fliers):  # class, dict
     """Collect location information for all Flier objects."""
-    print('%s : summarizing flier locations' % dt_str)
+    print('%s : summarizing flier locations' % clock.current_dt_str)
     locations = dict()
     for flier_id, flier in fliers.items():
         if (flier.state in ['INITIALIZED', 'OVIPOSITION']) or flier.active:
@@ -47,9 +47,9 @@ def summarize_motion(fliers, locations):  # 2 * dict
     return locations  # dict
 
 
-def summarize_activity(fliers, dt_str):  # dict, str
+def summarize_activity(clock, fliers):  # object, dict
     """In-simulation summary of flier activity."""
-    print('%s : flier summary:' % dt_str)
+    print('%s : flier summary:' % clock.current_dt_str)
     summary = np.zeros(8)
     for flier in fliers.values():
         if flier.state == 'INITIALIZED':
@@ -68,41 +68,40 @@ def summarize_activity(fliers, dt_str):  # dict, str
             summary[6] += 1
         elif flier.state in ['SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             summary[7] += 1
-    print('%s :   %d inactive' % (dt_str, summary[0]))
-    print('%s :   %d laying eggs' % (dt_str, summary[1]))
-    print('%s :   %d ready' % (dt_str, summary[2]))
-    print('%s :   %d lifting off' % (dt_str, summary[3]))
-    print('%s :   %d flying' % (dt_str, summary[4]))
-    print('%s :   %d landing' % (dt_str, summary[5]))
-    print('%s :   %d landed' % (dt_str, summary[6]))
-    print('%s :   %d lost' % (dt_str, summary[7]))
-    print('%s :   %d total' % (dt_str, sum(summary)))
+    print('%s :   %d inactive' % (clock.current_dt_str, summary[0]))
+    print('%s :   %d laying eggs' % (clock.current_dt_str, summary[1]))
+    print('%s :   %d ready' % (clock.current_dt_str, summary[2]))
+    print('%s :   %d lifting off' % (clock.current_dt_str, summary[3]))
+    print('%s :   %d flying' % (clock.current_dt_str, summary[4]))
+    print('%s :   %d landing' % (clock.current_dt_str, summary[5]))
+    print('%s :   %d landed' % (clock.current_dt_str, summary[6]))
+    print('%s :   %d lost' % (clock.current_dt_str, summary[7]))
+    print('%s :   %d total' % (clock.current_dt_str, sum(summary)))
     return
 
 
-def report_flier_locations(sim, radar, locations, date_time):
+def report_flier_locations(sim, clock, radar, locations):
     """Write location and motion of all Fliers as CSV."""
     location_df = pd.DataFrame.from_dict(locations, orient='index')
     columns = ['lat', 'lon', 'alt_AGL', 'alt_MSL', 'GpH',
                'UTM_zone', 'easting', 'northing',
                'v_x', 'v_y', 'v_z', 'v_r', 'v_a']
     location_df.columns = columns
-    dt_str = str(date_time.isoformat())
     if sim.experiment_number:
         outfname = '%s_simulation_%s_%s_summary/locs_%s_%s_%s.csv' % \
             (sim.simulation_name, str(sim.experiment_number).zfill(2),
-             str(sim.simulation_number).zfill(5), dt_str,
+             str(sim.simulation_number).zfill(5), clock.current_dt_str,
              str(sim.experiment_number).zfill(2),
              str(sim.simulation_number).zfill(5))
     else:
         outfname = '%s_simulation_%s_summary/locs_%s_%s.csv' % \
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
-             dt_str, str(sim.simulation_number).zfill(5))
+             clock.current_dt_str, str(sim.simulation_number).zfill(5))
     location_df.to_csv(outfname)
-    print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+    print('%s UTC : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
     if sim.use_radar and sim.npy_grids:
-        grid_flier_locations(sim, radar, locations, date_time)
-        grid_flier_dvels(sim, radar, locations, date_time)
+        grid_flier_locations(sim, clock, radar, locations)
+        grid_flier_dvels(sim, clock, radar, locations)
     return
 
 

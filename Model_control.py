@@ -6,16 +6,17 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019, 2020 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
 import sys
 from Simulation_specifications import Simulation
+from Clock import Clock
 from SBW_empirical import SBW
 from Model_initialization import command_line_args, setup_fliers
 from Model_initialization import load_initial_WRF_grids, setup_maps, setup_radar
-from Temporal_operations import advance_clock, count_active_fliers, remove_fliers
+from Temporal_operations import count_active_fliers, remove_fliers
 from Temporal_operations import end_sim_no_flights
 from Temporal_operations import update_flier_states, update_flier_status
 from Temporal_operations import query_flier_environments, interpolate_flier_environments
@@ -36,15 +37,18 @@ def ATM_main():
     print('initial setup : Simulation object initialized')
     print('initial setup : simulation name is %s' % sim.simulation_name)
     #
+    clock = Clock(sim)
+    print('initial setup : simulation clock initialized')
+    print('initial setup : simulation start datetime is %s' % clock.start_dt_str)
+    print('initial setup : simulation end datetime is %s' % clock.end_dt_str)
+    print('initial setup : simulation time step is %s seconds' % clock.dt_interval)
+    #
+    # process any command-line arguments (e.g. changed parameter values)
     command_line_args(sim, sys.argv)
     #
+    # get SBW empirical data and calculations
     sbw = SBW()
     print('initial setup : SBW empirical object initialized')
-    #
-    # simulation start/end times
-    print('initial setup : specified start time %s UTC' % str(sim.start_time.isoformat()))
-    print('initial setup : specified end time %s UTC' % str(sim.end_time.isoformat()))
-    print('initial setup : specified internal time step %d sec' % sim.dt)
     #
     # simulation use of WRF output
     print('initial setup : using WRF file path %s' % sim.WRF_input_path)
@@ -73,104 +77,99 @@ def ATM_main():
     liftoff_locations = dict()
     landing_locations = dict()
     egg_deposition = dict()
-    dt_str = '%s UTC' % str(sim.start_time.isoformat())
     #
     # get flier initial environment variables
     flier_environments_last = \
-        query_flier_environments(sim, last_wrf_time, last_wrf_grids,
-                                 flier_locations, topography, landcover, dt_str)
-    update_flier_environments(all_fliers, flier_environments_last, dt_str)
-    update_flier_status(sim, all_fliers, sim.start_time)
+        query_flier_environments(sim, clock, last_wrf_time, last_wrf_grids,
+                                 flier_locations, topography, landcover)
+    update_flier_environments(clock, all_fliers, flier_environments_last)
+    update_flier_status(sim, clock, all_fliers)
     #
     # write out flier location and motion summary
     flier_locations = summarize_motion(all_fliers, flier_locations)
-    report_flier_locations(sim, radar, flier_locations, sim.start_time)
+    report_flier_locations(sim, clock, radar, flier_locations)
     #
     # pre-load next WRF grids
-    next_wrf_time, next_wrf_grids = load_next_WRF_grids(sim, sim.start_time, dt_str)
+    next_wrf_time, next_wrf_grids = load_next_WRF_grids(sim, clock)
     flier_environments_next = \
-        query_flier_environments(sim, next_wrf_time, next_wrf_grids,
-                                 flier_locations, topography, landcover, dt_str)
+        query_flier_environments(sim, clock, next_wrf_time, next_wrf_grids,
+                                 flier_locations, topography, landcover)
     #
     # simulation time steps
-    print('%s : starting model time steps' % dt_str)
-    date_time = advance_clock(sim, sim.start_time)  # datetime object in UTC
+    print('%s : starting model time steps' % clock.start_dt_str)
+    clock.advance_clock()
     print()
     #
     # *** temporal loop begins here ***
     #
-    while date_time <= sim.end_time:  # datetime objects in UTC
-        dt_str = '%s UTC' % str(date_time.isoformat())
+    while clock.current_dt <= clock.end_dt:  # datetime objects in UTC
         #
         # if 5h elapsed and no active fliers left, break simulation
-        if end_sim_no_flights(sim, all_fliers, date_time, dt_str):
+        if end_sim_no_flights(sim, clock, all_fliers):
             break
         #
         # shuffle and update WRF grids if needed
         wrf_grids_updated = False
-        if date_time > next_wrf_time:  # datetime objects in UTC
+        if clock.current_dt > next_wrf_time:  # datetime objects in UTC
             last_wrf_time, last_wrf_grids, next_wrf_time, next_wrf_grids = \
-                shuffle_WRF_grids(sim, next_wrf_time, next_wrf_grids, dt_str)
+                shuffle_WRF_grids(sim, clock, next_wrf_time, next_wrf_grids)
             wrf_grids_updated = True
         #
         # update and summarize all active flier locations
-        n_moving_fliers = update_flier_locations(sim, all_fliers, dt_str)
-        flier_locations = summarize_locations(all_fliers, dt_str)
+        n_moving_fliers = update_flier_locations(sim, clock, all_fliers)
+        flier_locations = summarize_locations(clock, all_fliers)
         #
         # update flier environments
-        if date_time == next_wrf_time:  # datetime objects in UTC
+        if clock.current_dt == next_wrf_time:  # datetime objects in UTC
             if n_moving_fliers or wrf_grids_updated:
                 flier_environments_next = \
-                    query_flier_environments(sim, next_wrf_time, next_wrf_grids,
-                                             flier_locations, topography, landcover,
-                                             dt_str)
-            update_flier_environments(all_fliers, flier_environments_next, dt_str)
+                    query_flier_environments(sim, clock, next_wrf_time, next_wrf_grids,
+                                             flier_locations, topography, landcover)
+            update_flier_environments(clock, all_fliers, flier_environments_next)
         else:
             if n_moving_fliers or wrf_grids_updated:
                 flier_environments_last = \
-                    query_flier_environments(sim, last_wrf_time, last_wrf_grids,
-                                             flier_locations, topography, landcover,
-                                             dt_str)
+                    query_flier_environments(sim, clock, last_wrf_time, last_wrf_grids,
+                                             flier_locations, topography, landcover)
                 flier_environments_next = \
-                    query_flier_environments(sim, next_wrf_time, next_wrf_grids,
-                                             flier_locations, topography, landcover,
-                                             dt_str)
-            interpolate_flier_environments(all_fliers, flier_environments_last,
+                    query_flier_environments(sim, clock, next_wrf_time, next_wrf_grids,
+                                             flier_locations, topography, landcover)
+            interpolate_flier_environments(clock, all_fliers, flier_environments_last,
                                            flier_environments_next, last_wrf_time,
-                                           next_wrf_time, date_time)
+                                           next_wrf_time)
         #
         # write out flier location and motion summary
         flier_locations = summarize_motion(all_fliers, flier_locations)
-        report_flier_locations(sim, radar, flier_locations, date_time)
+        report_flier_locations(sim, clock, radar, flier_locations)
         #
         # loop through all_fliers, update state as needed and append to status record
         liftoff_locations, landing_locations, to_remove = \
-            update_flier_states(sim, sbw, defoliation, radar, all_fliers, date_time,
-                                liftoff_locations, landing_locations, dt_str)
+            update_flier_states(sim, clock, sbw, defoliation, radar, all_fliers,
+                                liftoff_locations, landing_locations)
         #
         # diagnostic summary of flier activity
-        summarize_activity(all_fliers, dt_str)
+        summarize_activity(clock, all_fliers)
         #
         # remove lost/dead fliers
         if to_remove:
             all_fliers, all_fliers_flight_status, trajectories, egg_deposition = \
-                remove_fliers(sim, all_fliers, date_time, all_fliers_flight_status,
-                              trajectories, egg_deposition, to_remove, dt_str)
+                remove_fliers(sim, clock, all_fliers, all_fliers_flight_status,
+                              trajectories, egg_deposition, to_remove)
         #
         # advance simulation clock
-        if date_time < sim.end_time:  # datetime objects in UTC
-            date_time = advance_clock(sim, date_time)  # datetime object in UTC
+        if clock.current_dt < clock.end_dt:  # datetime objects in UTC
+            clock.advance_clock()
         else:
-            print('%s : end of simulation, wrapping up' % dt_str)
+            print('%s : end of simulation, wrapping up' % clock.current_dt_str)
             break
         print()
     #
     # *** temporal loop ends here ***
     #
     # end-of-simulation report on remaining activity
-    n_active_fliers = count_active_fliers(sim, all_fliers, dt_str, output=False)
+    n_active_fliers = count_active_fliers(sim, clock, all_fliers, output=False)
     print('%s : simulation ended with %d active fliers (of %d specified)' %
-            (dt_str, n_active_fliers, sim.n_fliers))
+            (clock.current_dt_str, n_active_fliers, sim.n_fliers))
     print()
     if n_active_fliers:
         trajectories, egg_deposition = \

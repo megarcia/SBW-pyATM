@@ -163,20 +163,20 @@ class Flier(object):
         self.utc_t_m = self.utc_t_m.replace(tzinfo=tz.utc)
         return
 
-    def calc_circadian_p(self, date_time):
-        """Regniere et al. [2019]; date_time is an offset-aware datetime object in UTC."""
+    def calc_circadian_p(self, clock):
+        """Regniere et al. [2019]; clock contains an offset-aware datetime object in UTC."""
         C = 1.0 - (2.0 / 3.0) + (1.0 / 5.0)
-        if date_time < self.utc_t_0:
+        if clock.current_dt < self.utc_t_0:
             self.circadian_p = 0.0
-        elif date_time > self.utc_t_m:
+        elif clock.current_dt > self.utc_t_m:
             self.circadian_p = 1.0
         else:
-            if date_time <= self.utc_t_c:
-                num_t_diff = self.utc_t_c - date_time
+            if clock.current_dt <= self.utc_t_c:
+                num_t_diff = self.utc_t_c - clock.current_dt
                 tau_num = -1 * num_t_diff.seconds / 3600.0
                 denom_t_diff = self.utc_t_c - self.utc_t_0
             else:
-                num_t_diff = date_time - self.utc_t_c
+                num_t_diff = clock.current_dt - self.utc_t_c
                 tau_num = num_t_diff.seconds / 3600.0
                 denom_t_diff = self.utc_t_m - self.utc_t_c
             tau_denom = denom_t_diff.seconds / 3600.0
@@ -237,13 +237,13 @@ class Flier(object):
         self.GpH = phi / g_lat
         return
 
-    def update_location(self, sim):
+    def update_location(self, clock):
         """Update Flier location using ground-relative motion."""
         if self.state in ['LIFTOFF', 'FLIGHT', 'LANDING_W', 'LANDING_T',
                           'LANDING_P', 'LANDING_S', 'EXHAUSTED']:
-            x_dist = (self.v_x + self.U) * sim.dt
-            y_dist = (self.v_y + self.V) * sim.dt
-            z_dist = (self.v_z + self.W) * sim.dt
+            x_dist = (self.v_x + self.U) * clock.dt_interval
+            y_dist = (self.v_y + self.V) * clock.dt_interval
+            z_dist = (self.v_z + self.W) * clock.dt_interval
             self.flight_range += np.sqrt(x_dist**2 + y_dist**2)
             self.flight_distance += np.sqrt(x_dist**2 + y_dist**2 + z_dist**2)
             self.easting += x_dist
@@ -275,14 +275,14 @@ class Flier(object):
         self.v_y = speed * np.cos(self.bearing)
         return
 
-    def update_motion(self, sim, sbw, radar):
+    def update_motion(self, sim, clock, sbw, radar):
         """Update the moth's wingbeat frequency and wind-relative motion (velocity)."""
         if self.state in ['LIFTOFF', 'FLIGHT']:
             self.update_nu(sim, sbw)
             if sim.full_physics:  # not in use yet
-                self.v_x += self.a_x * sim.dt
-                self.v_y += self.a_y * sim.dt
-                self.v_z += self.a_z * sim.dt
+                self.v_x += self.a_x * clock.dt_interval
+                self.v_y += self.a_y * clock.dt_interval
+                self.v_z += self.a_z * clock.dt_interval
             else:
                 if (self.U != 0.0) and (self.V != 0.0):
                     self.bearing = np.arctan2(self.U, self.V)
@@ -440,11 +440,11 @@ class Flier(object):
             return False
         return True
 
-    def liftoff_loc_info(self, lc_type, date_time):
+    def liftoff_loc_info(self, clock, lc_type):
         loc_info = [self.lat, self.lon, self.UTM_zone, self.easting, self.northing,
                     self.sfc_elev, lc_type, self.defoliation_level, self.sex,
                     self.mass, self.forewing_A, self.AMratio, self.fecundity, self.nu,
-                    self.nu_L, date_time.isoformat(), self.utc_sunset_time.isoformat(),
+                    self.nu_L, clock.current_dt_str, self.utc_sunset_time.isoformat(),
                     self.circadian_T_ref, self.utc_t_0.isoformat(), self.utc_t_c.isoformat(),
                     self.utc_t_m.isoformat(), self.circadian_p, self.v_h, self.v_z, self.T,
                     self.P, self.U, self.V, self.W]
@@ -456,15 +456,15 @@ class Flier(object):
                     self.mass, self.fecundity]
         return loc_info
 
-    def update_state_motion(self, sim, sbw, radar, new_state):
+    def update_state_motion(self, sim, clock, sbw, radar, new_state):
         self.update_state(new_state)
         if new_state in ['CRASH', 'EXIT']:
             self.zero_motion(sim)
         else:
-            self.update_motion(sim, sbw, radar)
+            self.update_motion(sim, clock, sbw, radar)
         return
 
-    def state_decisions(self, sim, sbw, defoliation, radar, date_time,
+    def state_decisions(self, sim, clock, sbw, defoliation, radar,
                         liftoff_locations, landing_locations):
         """The main decision-making block."""
         self.update_nu(sim, sbw)
@@ -474,12 +474,12 @@ class Flier(object):
         if (self.state == 'INITIALIZED') and (self.sex):
             self.oviposition(sim, sbw, lc_type)
         elif self.state in ['INITIALIZED', 'OVIPOSITION']:
-            self.calc_circadian_p(date_time)
+            self.calc_circadian_p(clock)
             if self.circadian_p >= self.circadian_p_threshold:
                 self.update_state('READY')
         elif self.state in ['READY', 'HOST', 'FOREST', 'NONFOREST']:
             # sunrise
-            if date_time > self.utc_sunrise_time:
+            if clock.current_dt > self.utc_sunrise_time:
                 self.update_state('SUNRISE')
             # liftoff
             if self.state not in ['SUNRISE', 'SPENT']:
@@ -489,32 +489,32 @@ class Flier(object):
                     else:
                         liftoff_id_str = '%s_%d' % (self.flier_id, self.nflights)
                         liftoff_locations[liftoff_id_str] = \
-                            self.liftoff_loc_info(lc_type, date_time)
-                        self.update_state_motion(sim, sbw, radar, 'LIFTOFF')
+                            self.liftoff_loc_info(clock, lc_type)
+                        self.update_state_motion(sim, clock, sbw, radar, 'LIFTOFF')
                         self.nflights += 1
         elif self.state in ['LIFTOFF', 'FLIGHT']:
             if not self.inside_grid(sim):
-                self.update_state_motion(sim, sbw, radar, 'EXIT')
-            elif date_time > self.utc_sunrise_time:
-                self.update_state_motion(sim, sbw, radar, 'LANDING_S')
+                self.update_state_motion(sim, clock, sbw, radar, 'EXIT')
+            elif clock.current_dt > self.utc_sunrise_time:
+                self.update_state_motion(sim, clock, sbw, radar, 'LANDING_S')
             elif self.Precip >= sim.max_precip:
-                self.update_state_motion(sim, sbw, radar, 'LANDING_P')
+                self.update_state_motion(sim, clock, sbw, radar, 'LANDING_P')
             else:
                 self.update_empirical_values(sim, sbw)
                 if self.nu == 0.0:
-                    self.update_state_motion(sim, sbw, radar, 'LANDING_T')
+                    self.update_state_motion(sim, clock, sbw, radar, 'LANDING_T')
                 else:
                     if self.state == 'LIFTOFF':
                         if self.alt_AGL >= sim.climb_decision_hgt:
                             windspeed = np.sqrt(self.U ** 2 + self.V ** 2)
                             if windspeed < sim.min_windspeed:
-                                self.update_state_motion(sim, sbw, radar, 'LANDING_W')
+                                self.update_state_motion(sim, clock, sbw, radar, 'LANDING_W')
                             else:
-                                self.update_state_motion(sim, sbw, radar, 'FLIGHT')
+                                self.update_state_motion(sim, clock, sbw, radar, 'FLIGHT')
                     elif (self.state == 'FLIGHT') and (self.alt_AGL <= 0.0):
-                        self.update_state_motion(sim, sbw, radar, 'CRASH')
+                        self.update_state_motion(sim, clock, sbw, radar, 'CRASH')
                     else:
-                        self.update_motion(sim, sbw, radar)
+                        self.update_motion(sim, clock, sbw, radar)
         elif self.state in ['CRASH', 'LANDING_W', 'LANDING_T', 'LANDING_P', 'LANDING_S']:
             if not self.inside_grid(sim):
                 self.update_state('EXIT')
@@ -523,7 +523,7 @@ class Flier(object):
                     # allow moth to resume normal flight if it falls into a warm enough layer
                     if self.nu > 0.0:
                         self.update_state('FLIGHT')
-                self.update_motion(sim, sbw, radar)
+                self.update_motion(sim, clock, sbw, radar)
             else:
                 self.nu = 0.0
                 self.zero_motion(sim)  # a landed moth is stationary
@@ -548,7 +548,7 @@ class Flier(object):
                 self.update_state('EXIT')
                 self.sfc_elev = 0.0
             self.alt_MSL = self.sfc_elev
-        self.update_status(sim, date_time)
+        self.update_status(sim, clock)
         if self.state in ['SUNRISE', 'SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             self.active = 0
             remove = True
@@ -574,11 +574,10 @@ class Flier(object):
                        'U', 'V', 'W']
         return columns
 
-    def flight_status_info(self, sim, date_time):
-        # note date_time is a datetime object --> convert to ISOformat for output
+    def flight_status_info(self, sim, clock):
         if sim.full_physics:
             # full physics formulation
-            status_info = [self.flight_status_idx, date_time.isoformat(), self.prev_state,
+            status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
                            self.state, self.northing, self.easting, self.UTM_zone, self.lat,
                            self.lon, self.sfc_elev, self.alt_AGL, self.alt_MSL,
                            self.defoliation_level, self.sex, self.mass, self.forewing_A,
@@ -589,7 +588,7 @@ class Flier(object):
                            self.flight_range, self.P, self.T, self.Precip, self.GpH, self.U,
                            self.V, self.W]
         else:
-            status_info = [self.flight_status_idx, date_time.isoformat(), self.prev_state,
+            status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
                            self.state, self.northing, self.easting, self.UTM_zone, self.lat,
                            self.lon, self.sfc_elev, self.alt_AGL, self.alt_MSL,
                            self.defoliation_level, self.sex, self.mass, self.forewing_A,
@@ -599,16 +598,16 @@ class Flier(object):
                            self.Precip, self.GpH, self.U, self.V, self.W]
         return status_info
 
-    def update_status(self, sim, date_time):
+    def update_status(self, sim, clock):
         """Record Flier status for output."""
         flight_status_str = '%s_%s' % \
             (self.flier_id, str(self.flight_status_idx).zfill(7))
         self.flight_status[flight_status_str] = \
-            self.flight_status_info(sim, date_time)
+            self.flight_status_info(sim, clock)
         self.flight_status_idx += 1
         return
 
-    def report_status(self, sim, trajectories, date_time):
+    def report_status(self, sim, clock, trajectories):
         """Write out full listing of Flier status and plot trajectory."""
         if sim.experiment_number:
             outpath = '%s_simulation_%s_%s_output' % \
@@ -628,8 +627,7 @@ class Flier(object):
             outfname = '%s/flier_%s_%s_report.csv' % \
                        (outpath, str(sim.simulation_number).zfill(5), self.flier_id)
         status_df.to_csv(outfname)
-        dt_str = str(date_time.isoformat())
-        print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+        print('%s UTC : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
         self.output_written = 1
         #
         if sim.experiment_number:
@@ -640,7 +638,7 @@ class Flier(object):
             outfname = '%s/flier_%s_%s_trajectory.png' % \
                        (outpath, str(sim.simulation_number).zfill(5), self.flier_id)
         if plot_single_flight(sim, status_df, outfname):
-            print('%s UTC : wrote %s' % (dt_str, outfname.split('/')[-1]))
+            print('%s UTC : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
             lats = np.array(status_df['lat'])
             lons = np.array(status_df['lon'])
             alts = np.array(status_df['alt_AGL'])
