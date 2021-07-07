@@ -10,8 +10,6 @@ Copyright (C) 2021 by Matthew Garcia
 """
 
 
-# from datetime import timedelta
-# from datetime import timezone as tz
 import numpy as np
 import pandas as pd
 from Geography import lat_lon_to_utm, utm_to_lat_lon, inside_grid, calc_GpH
@@ -131,64 +129,6 @@ class Flier:
         """Flight strength ratio, introduced by MG (July 2020)"""
         self.AMratio = self.forewing_A / (self.mass * 1000.0)  # cm^2 per g
         return
-
-    """
-    def initialize_circadian_attributes(self, sim, sbw, circadian_T_ref):
-        ""Calculate liftoff circadian rhythm offsets and times; Regniere et al. [2019]""
-        self.circadian_T_ref = circadian_T_ref
-        if sim.calculate_circadian_from_WRF:
-            deltas = sbw.calc_circadian_deltas(self.circadian_T_ref)
-            self.circadian_delta_s = deltas[0]
-            self.circadian_delta_0 = deltas[1]
-            self.circadian_delta_f = deltas[2]
-            self.circadian_delta_f_potential = deltas[3]
-        else:
-            self.circadian_delta_s = sbw.circadian_delta_s
-            self.circadian_delta_0 = 0.5 * sbw.circadian_delta_f
-            self.circadian_delta_f = sbw.circadian_delta_f
-            self.circadian_delta_f_potential = 0.0
-        #
-        self.local_t_c = self.local_sunset_time + \
-                         timedelta(hours=self.circadian_delta_s)
-        self.local_t_0 = self.local_t_c + \
-                         timedelta(hours=self.circadian_delta_0)
-        if self.circadian_delta_f_potential:
-            self.local_t_m = self.local_t_0 + \
-                             timedelta(hours=self.circadian_delta_f_potential)
-        else:
-            self.local_t_m = self.local_t_0 + \
-                             timedelta(hours=self.circadian_delta_f)
-        self.utc_t_c = self.local_t_c - timedelta(hours=sim.UTC_offset)
-        self.utc_t_c = self.utc_t_c.replace(tzinfo=tz.utc)
-        self.utc_t_0 = self.local_t_0 - timedelta(hours=sim.UTC_offset)
-        self.utc_t_0 = self.utc_t_0.replace(tzinfo=tz.utc)
-        self.utc_t_m = self.local_t_m - timedelta(hours=sim.UTC_offset)
-        self.utc_t_m = self.utc_t_m.replace(tzinfo=tz.utc)
-        return
-
-    def calc_circadian_p(self, clock):
-        ""Regniere et al. [2019]; clock contains an offset-aware datetime object in UTC.""
-        C = 1.0 - (2.0 / 3.0) + (1.0 / 5.0)
-        if clock.current_dt < self.utc_t_0:
-            self.circadian_p = 0.0
-        elif clock.current_dt > self.utc_t_m:
-            self.circadian_p = 1.0
-        else:
-            if clock.current_dt <= self.utc_t_c:
-                num_t_diff = self.utc_t_c - clock.current_dt
-                tau_num = -1 * num_t_diff.seconds / 3600.0
-                denom_t_diff = self.utc_t_c - self.utc_t_0
-            else:
-                num_t_diff = clock.current_dt - self.utc_t_c
-                tau_num = num_t_diff.seconds / 3600.0
-                denom_t_diff = self.utc_t_m - self.utc_t_c
-            tau_denom = denom_t_diff.seconds / 3600.0
-            tau = tau_num / tau_denom
-            term2 = (2.0 / 3.0) * tau**3
-            term3 = (1.0 / 5.0) * tau**5
-            self.circadian_p = (C + tau - term2 + term3) / (2 * C)
-        return
-    """
 
     def update_state(self, new_state):
         """Update Flier to indicated state.

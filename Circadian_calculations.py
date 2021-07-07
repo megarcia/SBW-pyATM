@@ -153,5 +153,4 @@ def calc_circadian_p(clock, flier):
         flier.circadian_p = (C + tau - term2 + term3) / (2 * C)
     return
 
-
 # end Circadian_calculations.py

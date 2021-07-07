@@ -125,28 +125,4 @@ class SBW:
                            self.M_F_c3 * G * A + self.M_F_c4)
         return M
 
-    """
-    def calc_circadian_deltas(self, T_ref):
-        ""Regniere et al. [2019].""
-        circadian_p1 = np.random.normal(loc=self.circadian['p1_mean'],
-                                        scale=self.circadian['p1_stdv'])
-        circadian_p2 = np.random.normal(loc=self.circadian['p2_mean'],
-                                        scale=self.circadian['p2_stdv'])
-        circadian_p3 = np.random.normal(loc=self.circadian['p3_mean'],
-                                        scale=self.circadian['p3_stdv'])
-        circadian_p4 = np.random.normal(loc=self.circadian['p4_mean'],
-                                        scale=self.circadian['p4_stdv'])
-        circadian_p5 = np.random.normal(loc=self.circadian['p5_mean'],
-                                        scale=self.circadian['p5_stdv'])
-        circadian_kf = np.random.normal(loc=self.circadian['kf_mean'],
-                                        scale=self.circadian['kf_stdv'])
-        #
-        delta_s = circadian_p1 + circadian_p2 * T_ref
-        delta_0 = circadian_p3 + circadian_p4 * delta_s
-        delta_f = circadian_p5 * delta_0
-        delta_f_potential = circadian_kf * delta_f
-        deltas = [delta_s, delta_0, delta_f, delta_f_potential]
-        return deltas  # list of 4 * float
-    """
-
 # end SBW_empirical.py
