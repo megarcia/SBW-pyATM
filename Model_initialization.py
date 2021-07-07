@@ -17,7 +17,7 @@ from Radar_class import Radar
 from Flier_class import Flier
 from Flier_setup import read_flier_locations_attributes
 from Flier_setup import generate_flier_locations, generate_flier_attributes
-from Flier_setup import calc_circadian_from_WRF_T, assign_circadian
+from Circadian_calculations import calc_circadian_from_WRF_T, assign_circadian
 from Flier_summary import summarize_locations
 from Solar_calculations import update_suntimes
 

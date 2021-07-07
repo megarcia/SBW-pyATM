@@ -10,7 +10,8 @@ Copyright (C) 2021 by Matthew Garcia
 """
 
 
-from datetime import timedelta, timezone as tz
+# from datetime import timedelta
+# from datetime import timezone as tz
 import numpy as np
 import pandas as pd
 from Geography import lat_lon_to_utm, utm_to_lat_lon, inside_grid, calc_GpH
@@ -18,7 +19,7 @@ from Map_class import lc_category
 from Plots_gen import plot_single_flight
 
 
-class Flier(object):
+class Flier:
     """Initialize, define, and manipulate an individual flier (SBW moth)."""
 
     def __init__(self, sim, sbw, flier_id, flier_location, flier_attributes):
@@ -131,8 +132,9 @@ class Flier(object):
         self.AMratio = self.forewing_A / (self.mass * 1000.0)  # cm^2 per g
         return
 
+    """
     def initialize_circadian_attributes(self, sim, sbw, circadian_T_ref):
-        """Calculate liftoff circadian rhythm offsets and times; Regniere et al. [2019]"""
+        ""Calculate liftoff circadian rhythm offsets and times; Regniere et al. [2019]""
         self.circadian_T_ref = circadian_T_ref
         if sim.calculate_circadian_from_WRF:
             deltas = sbw.calc_circadian_deltas(self.circadian_T_ref)
@@ -165,7 +167,7 @@ class Flier(object):
         return
 
     def calc_circadian_p(self, clock):
-        """Regniere et al. [2019]; clock contains an offset-aware datetime object in UTC."""
+        ""Regniere et al. [2019]; clock contains an offset-aware datetime object in UTC.""
         C = 1.0 - (2.0 / 3.0) + (1.0 / 5.0)
         if clock.current_dt < self.utc_t_0:
             self.circadian_p = 0.0
@@ -186,6 +188,7 @@ class Flier(object):
             term3 = (1.0 / 5.0) * tau**5
             self.circadian_p = (C + tau - term2 + term3) / (2 * C)
         return
+    """
 
     def update_state(self, new_state):
         """Update Flier to indicated state.
@@ -451,7 +454,7 @@ class Flier(object):
         if (self.state == 'INITIALIZED') and (self.sex):
             self.oviposition(sim, sbw, lc_type)
         elif self.state in ['INITIALIZED', 'OVIPOSITION']:
-            self.calc_circadian_p(clock)
+            # self.calc_circadian_p(clock)
             if self.circadian_p >= self.circadian_p_threshold:
                 self.update_state('READY')
         elif self.state in ['READY', 'HOST', 'FOREST', 'NONFOREST']:

@@ -13,10 +13,10 @@ Copyright (C) 2021 by Matthew Garcia
 from datetime import datetime, timedelta, timezone as tz
 import numpy as np
 import pandas as pd
-from Interpolate import get_interp_vals_2D, interpolate_time
+from Interpolate import get_interp_vals_2D  # , interpolate_time
 from Geography import inside_grid, inside_init_box
 from Map_class import lc_category
-from WRFgrids_class import check_for_WRF_file, WRFgrids
+# from WRFgrids_class import check_for_WRF_file, WRFgrids
 
 
 def read_flier_locations_attributes(sim):
@@ -177,8 +177,9 @@ def generate_flier_attributes(sbw, locations):
     return attributes  # list
 
 
+"""
 def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover):
-    """Calculate flier circadian attributes using WRF-based temperatures."""
+    ""Calculate flier circadian attributes using WRF-based temperatures.""
     dt_str = 'initial setup'
     print('%s : calculating flier circadian attributes' % dt_str)
     circadian_ref_hh = int(sbw.circadian_ref_time)
@@ -238,10 +239,11 @@ def calc_circadian_from_WRF_T(sim, sbw, fliers, locations, topography, landcover
 
 
 def assign_circadian(sim, sbw, fliers):
-    """Assign flier circadian attributes with user-specified values."""
+    ""Assign flier circadian attributes with user-specified values.""
     print('initial setup : assigning specified flier circadian attributes')
     for flier in fliers:
         flier.initialize_circadian_attributes(sim, sbw, 0.0)
     return
+"""
 
 # end Flier_setup.py

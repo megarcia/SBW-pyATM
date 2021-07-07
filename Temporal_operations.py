@@ -15,6 +15,7 @@ from datetime import timedelta
 from WRFgrids_class import WRFgrids
 from Interpolate import interpolate_time
 from Solar_calculations import update_suntimes
+from Circadian_calculations import calc_circadian_p
 
 
 def count_active_fliers(sim, clock, fliers, output=True):
@@ -112,8 +113,10 @@ def update_flier_states(sim, clock, sbw, defoliation, radar, fliers,
     print('%s : updating states of active fliers' % clock.current_dt_str)
     to_remove = list()
     for flier_id, flier in fliers.items():
+        if flier.state in ['INITIALIZED', 'OVIPOSITION']:
+            calc_circadian_p(clock, flier)
         remove, liftoff_locs, landing_locs = \
-            flier.state_decisions(sim, sbw, defoliation, radar,
+            flier.state_decisions(sim, clock, sbw, defoliation, radar,
                                   liftoff_locs, landing_locs)
         if remove:
             print('%s : flier %s indicated for removal' %

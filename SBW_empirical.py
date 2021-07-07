@@ -13,7 +13,7 @@ Copyright (C) 2021 by Matthew Garcia
 import numpy as np
 
 
-class SBW(object):
+class SBW:
     """Declare SBW empirical constants and methods."""
 
     def __init__(self):
@@ -125,8 +125,9 @@ class SBW(object):
                            self.M_F_c3 * G * A + self.M_F_c4)
         return M
 
+    """
     def calc_circadian_deltas(self, T_ref):
-        """Regniere et al. [2019]."""
+        ""Regniere et al. [2019].""
         circadian_p1 = np.random.normal(loc=self.circadian['p1_mean'],
                                         scale=self.circadian['p1_stdv'])
         circadian_p2 = np.random.normal(loc=self.circadian['p2_mean'],
@@ -146,5 +147,6 @@ class SBW(object):
         delta_f_potential = circadian_kf * delta_f
         deltas = [delta_s, delta_0, delta_f, delta_f_potential]
         return deltas  # list of 4 * float
+    """
 
 # end SBW_empirical.py
