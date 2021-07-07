@@ -10,6 +10,7 @@ Copyright (C) 2021 by Matthew Garcia
 """
 
 
+import numpy as np
 from pyproj import Proj
 
 
@@ -50,5 +51,27 @@ def inside_init_box(sim, lat, lon):
     if sim.init_flier_min_lon <= lon <= sim.init_flier_max_lon:
         return True
     return False
+
+
+def calc_GpH(lat, alt_MSL):
+    """Calculate geopotential height using WGS84 spheroid and gravity formula."""
+    cos_lat = np.cos(np.deg2rad(lat))
+    sin_lat = np.sin(np.deg2rad(lat))
+    sin2_lat = sin_lat**2
+    num_coeff = 0.00193185265241
+    num = 1.0 + num_coeff * sin2_lat
+    den_coeff = 0.00669437999013
+    den = np.sqrt(1 - den_coeff * sin2_lat)
+    g_lat = 9.7803253359 * num / den
+    G = 6.673E-11  # gravitational constant
+    m = 5.975E24   # Earth mass [kg]
+    a = 6378137.0  # semi-major axis i.e. equatorial radius [m]
+    b = 6356752.3  # semi-minor axis i.e. polar radius [m]
+    num = (a**2 * cos_lat)**2 + (b**2 * sin_lat)**2
+    den = (a * cos_lat)**2 + (b * sin_lat)**2
+    r = np.sqrt(num / den)
+    phi = G * m * ((1 / r) - (1 / (r + alt_MSL)))
+    GpH = phi / g_lat
+    return GpH
 
 # end Geography.py

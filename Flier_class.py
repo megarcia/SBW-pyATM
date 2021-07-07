@@ -13,7 +13,7 @@ Copyright (C) 2021 by Matthew Garcia
 from datetime import timedelta, timezone as tz
 import numpy as np
 import pandas as pd
-from Geography import lat_lon_to_utm, utm_to_lat_lon, inside_grid
+from Geography import lat_lon_to_utm, utm_to_lat_lon, inside_grid, calc_GpH
 from Map_class import lc_category
 from Plots_gen import plot_single_flight
 
@@ -41,7 +41,7 @@ class Flier(object):
         self.sfc_elev = 0.0
         self.alt_AGL = 0.0
         self.alt_MSL = self.sfc_elev + self.alt_AGL
-        self.calc_GpH()
+        self.GpH = calc_GpH(self.lat, self.alt_MSL)
         if sim.use_defoliation:
             self.landcover_index = flier_location[2]
             self.defoliation_level = flier_location[3]
@@ -127,7 +127,7 @@ class Flier(object):
         return
 
     def calc_AM_ratio(self):
-        """Flight strength ratio introduced by MG (July 2020)"""
+        """Flight strength ratio, introduced by MG (July 2020)"""
         self.AMratio = self.forewing_A / (self.mass * 1000.0)  # cm^2 per g
         return
 
@@ -217,27 +217,6 @@ class Flier(object):
             self.active = 1
         return
 
-    def calc_GpH(self):
-        """Calculate geopotential height using WGS84 spheroid and gravity formula."""
-        cos_lat = np.cos(np.deg2rad(self.lat))
-        sin_lat = np.sin(np.deg2rad(self.lat))
-        sin2_lat = sin_lat**2
-        num_coeff = 0.00193185265241
-        num = 1.0 + num_coeff * sin2_lat
-        den_coeff = 0.00669437999013
-        den = np.sqrt(1 - den_coeff * sin2_lat)
-        g_lat = 9.7803253359 * num / den
-        G = 6.673E-11  # gravitational constant
-        m = 5.975E24   # Earth mass [kg]
-        a = 6378137.0  # semi-major axis i.e. equatorial radius [m]
-        b = 6356752.3  # semi-minor axis i.e. polar radius [m]
-        num = (a**2 * cos_lat)**2 + (b**2 * sin_lat)**2
-        den = (a * cos_lat)**2 + (b * sin_lat)**2
-        r = np.sqrt(num / den)
-        phi = G * m * ((1 / r) - (1 / (r + self.alt_MSL)))
-        self.GpH = phi / g_lat
-        return
-
     def update_location(self, clock):
         """Update Flier location using ground-relative motion."""
         if self.state in ['LIFTOFF', 'FLIGHT', 'LANDING_W', 'LANDING_T',
@@ -251,25 +230,26 @@ class Flier(object):
             self.northing += y_dist
             self.lat, self.lon = utm_to_lat_lon(self.easting, self.northing, self.UTM_zone)
             self.alt_MSL += z_dist
-            self.calc_GpH()
+            self.GpH = calc_GpH(self.lat, self.alt_MSL)
         return
 
     def inside_grid(self, sim):
-        """Check if moth is still within the simulation boundaries."""
+        """Check if Flier is still within the simulation boundaries."""
         return inside_grid(sim, self.lat, self.lon)
 
     def update_nu(self, sim, sbw):
-        """Calculate wingbeat frequency."""
+        """Calculate Flier wingbeat frequency."""
         self.nu = sbw.calc_nu_T(self.T) * sim.delta_nu
         return
 
     def update_v_h_components(self, speed):
+        """Calculate Flier horizontal velocity components."""
         self.v_x = speed * np.sin(self.bearing)
         self.v_y = speed * np.cos(self.bearing)
         return
 
     def update_motion(self, sim, clock, sbw, radar):
-        """Update the moth's wingbeat frequency and wind-relative motion (velocity)."""
+        """Update Flier wingbeat frequency and wind-relative motion (velocity)."""
         if self.state in ['LIFTOFF', 'FLIGHT']:
             self.update_nu(sim, sbw)
             if sim.full_physics:  # not in use yet
@@ -330,7 +310,7 @@ class Flier(object):
         return
 
     def zero_motion(self, sim):
-        """Set motion variable values for stationary moth."""
+        """Set motion variable values for stationary Flier."""
         if sim.full_physics:
             self.a_h = 0.0
             self.a_x = 0.0
@@ -348,6 +328,7 @@ class Flier(object):
         return
 
     def oviposition(self, sim, sbw, lc_type):
+        """Determine if oviposition occurs and calculate egg deposition."""
         if self.state != 'INITIALIZED':
             return
         if lc_type == 'null':
@@ -414,12 +395,12 @@ class Flier(object):
         else:
             if self.alt_MSL < self.sfc_elev:
                 self.alt_MSL = self.sfc_elev
-                self.calc_GpH()
+                self.GpH = calc_GpH(self.lat, self.alt_MSL)
             self.alt_AGL = self.alt_MSL - self.sfc_elev
         return
 
     def liftoff_conditions(self, sim, sbw):
-        """Evaluate liftoff conditions and triggers."""
+        """Evaluate Flier liftoff conditions and triggers."""
         if self.Precip >= sim.max_precip:  # no liftoff in heavy rain
             return False
         if self.W < 0.0:  # no liftoff in a downdraft (for later)
@@ -434,6 +415,7 @@ class Flier(object):
         return True
 
     def liftoff_loc_info(self, clock, lc_type):
+        """Concatenate info on Flier liftoff location and conditions."""
         loc_info = [self.lat, self.lon, self.UTM_zone, self.easting, self.northing,
                     self.sfc_elev, lc_type, self.defoliation_level, self.sex,
                     self.mass, self.forewing_A, self.AMratio, self.fecundity, self.nu,
@@ -444,12 +426,14 @@ class Flier(object):
         return loc_info
 
     def landing_loc_info(self, lc_type):
+        """Concatenate info on Flier landing location and conditions."""
         loc_info = [self.lat, self.lon, self.UTM_zone, self.easting, self.northing,
                     self.sfc_elev, lc_type, self.defoliation_level, self.sex,
                     self.mass, self.fecundity]
         return loc_info
 
     def update_state_motion(self, sim, clock, sbw, radar, new_state):
+        """Update Flier state and motion."""
         self.update_state(new_state)
         if new_state in ['CRASH', 'EXIT']:
             self.zero_motion(sim)
@@ -549,6 +533,7 @@ class Flier(object):
 
     @staticmethod
     def flight_status_columns(sim):
+        """Dataframe column names for Flier status information."""
         if sim.full_physics:
             # full physics formulation
             columns = ['flight_status', 'date_time', 'prev_state', 'state',
@@ -568,6 +553,7 @@ class Flier(object):
         return columns
 
     def flight_status_info(self, sim, clock):
+        """Concatenate info on Flier location, status, and conditions."""
         if sim.full_physics:
             # full physics formulation
             status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
