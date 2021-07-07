@@ -57,21 +57,22 @@ class SBW(object):
         self.F_intercept = 216.8         # from Nealis and Regniere [2004]
         # circadian rhythm coefficients from Regniere et al. [2019]
         self.threshold_T = 25.4          # [C] no flight until evening gets below this temperature
-        self.circadian_ref_time = 19.5   # [h] [LDT]
-        self.circadian_delta_s = 1.0     # [h]
-        self.circadian_delta_f = 5.0     # [h]
-        self.circadian_p1_mean = -3.8    # [h]
-        self.circadian_p1_stdv = 0.7     # [h]
-        self.circadian_p2_mean = 0.145   # [h/C]
-        self.circadian_p2_stdv = 0.031   # [h/C]
-        self.circadian_p3_mean = -1.267  # [h]
-        self.circadian_p3_stdv = 0.146   # [h]
-        self.circadian_p4_mean = -0.397  # [-]
-        self.circadian_p4_stdv = 0.187   # [-]
-        self.circadian_p5_mean = -2.465  # [-]
-        self.circadian_p5_stdv = 0.152   # [-]
-        self.circadian_kf_mean = 1.35    # [-]
-        self.circadian_kf_stdv = 0.025   # [-]
+        self.circadian = dict()
+        self.circadian['ref_time'] = 19.5   # [h] [LDT]
+        self.circadian['delta_s'] = 1.0     # [h]
+        self.circadian['delta_f'] = 5.0     # [h]
+        self.circadian['p1_mean'] = -3.8    # [h]
+        self.circadian['p1_stdv'] = 0.7     # [h]
+        self.circadian['p2_mean'] = 0.145   # [h/C]
+        self.circadian['p2_stdv'] = 0.031   # [h/C]
+        self.circadian['p3_mean'] = -1.267  # [h]
+        self.circadian['p3_stdv'] = 0.146   # [h]
+        self.circadian['p4_mean'] = -0.397  # [-]
+        self.circadian['p4_stdv'] = 0.187   # [-]
+        self.circadian['p5_mean'] = -2.465  # [-]
+        self.circadian['p5_stdv'] = 0.152   # [-]
+        self.circadian['kf_mean'] = 1.35    # [-]
+        self.circadian['kf_stdv'] = 0.025   # [-]
         # physics coefficients (for later use)
         self.c_L = 0.0                   # lift coefficient [-]
         self.c_D = 0.0                   # drag coefficient [-]
@@ -126,18 +127,19 @@ class SBW(object):
 
     def calc_circadian_deltas(self, T_ref):
         """Regniere et al. [2019]."""
-        circadian_p1 = \
-            np.random.normal(loc=self.circadian_p1_mean, scale=self.circadian_p1_stdv)
-        circadian_p2 = \
-            np.random.normal(loc=self.circadian_p2_mean, scale=self.circadian_p2_stdv)
-        circadian_p3 = \
-            np.random.normal(loc=self.circadian_p3_mean, scale=self.circadian_p3_stdv)
-        circadian_p4 = \
-            np.random.normal(loc=self.circadian_p4_mean, scale=self.circadian_p4_stdv)
-        circadian_p5 = \
-            np.random.normal(loc=self.circadian_p5_mean, scale=self.circadian_p5_stdv)
-        circadian_kf = \
-            np.random.normal(loc=self.circadian_kf_mean, scale=self.circadian_kf_stdv)
+        circadian_p1 = np.random.normal(loc=self.circadian['p1_mean'],
+                                        scale=self.circadian['p1_stdv'])
+        circadian_p2 = np.random.normal(loc=self.circadian['p2_mean'],
+                                        scale=self.circadian['p2_stdv'])
+        circadian_p3 = np.random.normal(loc=self.circadian['p3_mean'],
+                                        scale=self.circadian['p3_stdv'])
+        circadian_p4 = np.random.normal(loc=self.circadian['p4_mean'],
+                                        scale=self.circadian['p4_stdv'])
+        circadian_p5 = np.random.normal(loc=self.circadian['p5_mean'],
+                                        scale=self.circadian['p5_stdv'])
+        circadian_kf = np.random.normal(loc=self.circadian['kf_mean'],
+                                        scale=self.circadian['kf_stdv'])
+        #
         delta_s = circadian_p1 + circadian_p2 * T_ref
         delta_0 = circadian_p3 + circadian_p4 * delta_s
         delta_f = circadian_p5 * delta_0
