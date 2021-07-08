@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 from Geography import lat_lon_to_utm, utm_to_lat_lon, inside_grid, calc_GpH
 from Map_class import lc_category
+from Flier_summary import flight_status_columns
 from Plots_gen import plot_single_flight
 
 
@@ -405,17 +406,6 @@ class Flier:
             remove = True
         return remove, liftoff_locations, landing_locations  # bool + 2 * dict
 
-    @staticmethod
-    def flight_status_columns():
-        """Dataframe column names for Flier status information."""
-        columns = ['flight_status', 'date_time', 'prev_state', 'state',
-                   'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
-                   'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
-                   'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
-                   'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
-                   'U', 'V', 'W']
-        return columns
-
     def flight_status_info(self, clock):
         """Concatenate info on Flier location, status, and conditions."""
         status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
@@ -446,7 +436,7 @@ class Flier:
             outpath = '%s_simulation_%s_output' % \
                       (sim.simulation_name, str(sim.simulation_number).zfill(5))
         status_df = pd.DataFrame.from_dict(self.flight_status, orient='index')
-        status_df.columns = self.flight_status_columns()
+        status_df.columns = flight_status_columns()
         status_df = status_df.sort_values(by=['flight_status'])
         if sim.experiment_number:
             outfname = '%s/flier_%s_%s_%s_report.csv' % \

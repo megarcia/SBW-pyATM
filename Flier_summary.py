@@ -370,6 +370,17 @@ def report_liftoff_stats(outf, sum_str, liftoff_locs, ref_datetime):
     return sum_str, histograms  # 1 str + 1 list of lists of lists
 
 
+def flight_status_columns():
+    """Dataframe column names for Flier status information."""
+    columns = ['flight_status', 'date_time', 'prev_state', 'state',
+               'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
+               'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
+               'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
+               'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
+               'U', 'V', 'W']
+    return columns
+
+
 def report_flier_statistics(sim, all_fliers_flight_status, liftoff_locations):
     """Calculate and report various statistics across all Fliers in simulation."""
     #
@@ -412,13 +423,7 @@ def report_flier_statistics(sim, all_fliers_flight_status, liftoff_locations):
     # put each flier's status data into a DataFrame for ease of processing
     for flight_status in all_fliers_flight_status.values():
         status_df = pd.DataFrame.from_dict(flight_status, orient='index')
-        columns = ['flight_status', 'date_time', 'prev_state', 'state',
-                   'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
-                   'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
-                   'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
-                   'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
-                   'U', 'V', 'W']
-        status_df.columns = columns
+        status_df.columns = flight_status_columns()
         status_df = status_df.sort_values(by=['date_time'])
         #
         date_time_all = [iso8601.parse_date(d) for d in list(status_df['date_time'])]
