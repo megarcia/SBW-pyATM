@@ -16,6 +16,7 @@ from Clock import Clock
 from SBW_empirical import SBW
 from Model_initialization import command_line_args, setup_fliers
 from Model_initialization import load_initial_WRF_grids, setup_maps, setup_radar
+from Oviposition_calculations import oviposition
 from Temporal_operations import count_active_fliers, remove_fliers
 from Temporal_operations import end_sim_no_flights
 from Temporal_operations import update_flier_states, update_flier_status
@@ -94,6 +95,9 @@ def ATM_main():
     flier_environments_next = \
         query_flier_environments(sim, clock, next_wrf_time, next_wrf_grids,
                                  flier_locations, topography, landcover)
+    #
+    # natal site oviposition
+    oviposition(sim, sbw, all_fliers)
     #
     # simulation time steps
     print('%s : starting model time steps' % clock.start_dt_str)
