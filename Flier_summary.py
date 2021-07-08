@@ -286,6 +286,7 @@ def get_alt_histogram(alts):
 
 
 def get_time_stats_histogram(outf, sum_str, var, df, ref_datetime):
+    """Calculate stats and histogram of time data."""
     times = [iso8601.parse_date(d) for d in list(df[var])]
     sum_str = report_time_stats(outf, sum_str, times)
     time_counts, time_bins = get_time_histogram(times, ref_datetime)
@@ -293,6 +294,7 @@ def get_time_stats_histogram(outf, sum_str, var, df, ref_datetime):
 
 
 def get_speed_stats_histogram(outf, sum_str, var, df, label, units):
+    """Calculate stats and histogram of speed data."""
     vals = list(df[var])
     sum_str = report_mean_stdv(outf, sum_str, vals, label, units)
     counts, bins = get_liftoff_speed_histogram(vals)
@@ -410,21 +412,12 @@ def report_flier_statistics(sim, all_fliers_flight_status, liftoff_locations):
     # put each flier's status data into a DataFrame for ease of processing
     for flight_status in all_fliers_flight_status.values():
         status_df = pd.DataFrame.from_dict(flight_status, orient='index')
-        if sim.full_physics:
-            columns = ['flight_status', 'date_time', 'prev_state', 'state',
-                       'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
-                       'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
-                       'F', 'gravidity', 'nu', 'nu_L', 'weight', 'lift', 'drag',
-                       'thrust', 'body_angle', 'a_x', 'a_y', 'a_z', 'v_x', 'v_y',
-                       'v_z', 'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip',
-                       'GpH', 'U', 'V', 'W']
-        else:
-            columns = ['flight_status', 'date_time', 'prev_state', 'state',
-                       'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
-                       'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
-                       'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
-                       'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
-                       'U', 'V', 'W']
+        columns = ['flight_status', 'date_time', 'prev_state', 'state',
+                   'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
+                   'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
+                   'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
+                   'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
+                   'U', 'V', 'W']
         status_df.columns = columns
         status_df = status_df.sort_values(by=['date_time'])
         #

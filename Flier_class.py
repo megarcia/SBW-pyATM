@@ -113,18 +113,6 @@ class Flier:
         # doppler (radar-relative) motion
         self.v_radial = 0.0
         self.v_azimuthal = 0.0
-        #
-        # full-physics flight attributes
-        if sim.full_physics:
-            self.body_angle = 0.0
-            self.weight = 0.0
-            self.lift = 0.0
-            self.drag = 0.0
-            self.thrust = 0.0
-            self.a_h = 0.0
-            self.a_x = 0.0
-            self.a_y = 0.0
-            self.a_z = 0.0
         return
 
     def calc_AM_ratio(self):
@@ -193,47 +181,42 @@ class Flier:
         self.v_y = speed * np.cos(self.bearing)
         return
 
-    def update_motion(self, sim, clock, sbw, radar):
+    def update_motion(self, sim, sbw, radar):
         """Update Flier wingbeat frequency and wind-relative motion (velocity)."""
         if self.state in ['LIFTOFF', 'FLIGHT']:
             self.update_nu(sim, sbw)
-            if sim.full_physics:  # not in use yet
-                self.v_x += self.a_x * clock.dt_interval
-                self.v_y += self.a_y * clock.dt_interval
-                self.v_z += self.a_z * clock.dt_interval
-            else:
-                if (self.U != 0.0) and (self.V != 0.0):
-                    self.bearing = np.arctan2(self.U, self.V)
-                # else if entering calm area (no wind), don't change the flight bearing
-                if sim.flight_speed == 'const':
-                    # w_horizontal specified by user input
-                    if self.state == 'LIFTOFF':
-                        self.update_v_h_components(-sim.w_horizontal)  # into the wind
-                        self.v_z = 0.6  # [m/s] from Greenbank et al. (1980)
-                    elif self.state == 'FLIGHT':
-                        self.update_v_h_components(sim.w_horizontal)  # with the wind
-                        self.v_z = sim.w_alpha * (self.nu - self.nu_L_Ts)  # [m/s]
-                elif sim.flight_speed == 'param':
-                    # new flight velocity parameterization
-                    # introduced August 2020 (MG)
-                    # revised February 2021 (MG)
-                    if self.state == 'LIFTOFF':
-                        # horizontal speed [m/s]
-                        self.v_h = -1 * sim.wingbeat_eff * self.AMratio * \
-                                   self.nu * np.cos(self.liftoff_angle)
-                        # vertical speed [m/s]
-                        self.v_z = sim.wingbeat_eff * self.AMratio * \
-                                   (self.nu - self.nu_L) * np.sin(self.liftoff_angle)
-                    elif self.state == 'FLIGHT':
-                        # horizontal speed [m/s]
-                        self.v_h = -1 * sim.wingbeat_eff * self.AMratio * self.nu
-                        # horizontal speed [m/s] in calm winds
-                        V_h = np.sqrt(self.U**2 + self.V**2)
-                        if (self.v_h + V_h) < sim.min_flight_speed:
-                            self.v_h = sim.min_flight_speed - V_h
-                        # vertical speed [m/s]
-                        self.v_z = sim.wingbeat_eff * self.AMratio * (self.nu - self.nu_L)
-                    self.update_v_h_components(self.v_h)
+            if (self.U != 0.0) and (self.V != 0.0):
+                self.bearing = np.arctan2(self.U, self.V)
+            # else if entering calm area (no wind), don't change the flight bearing
+            if sim.flight_speed == 'const':
+                # w_horizontal specified by user input
+                if self.state == 'LIFTOFF':
+                    self.update_v_h_components(-sim.w_horizontal)  # into the wind
+                    self.v_z = 0.6  # [m/s] from Greenbank et al. (1980)
+                elif self.state == 'FLIGHT':
+                    self.update_v_h_components(sim.w_horizontal)  # with the wind
+                    self.v_z = sim.w_alpha * (self.nu - self.nu_L_Ts)  # [m/s]
+            elif sim.flight_speed == 'param':
+                # new flight velocity parameterization
+                # introduced August 2020 (MG)
+                # revised February 2021 (MG)
+                if self.state == 'LIFTOFF':
+                    # horizontal speed [m/s]
+                    self.v_h = -1 * sim.wingbeat_eff * self.AMratio * \
+                               self.nu * np.cos(self.liftoff_angle)
+                    # vertical speed [m/s]
+                    self.v_z = sim.wingbeat_eff * self.AMratio * \
+                               (self.nu - self.nu_L) * np.sin(self.liftoff_angle)
+                elif self.state == 'FLIGHT':
+                    # horizontal speed [m/s]
+                    self.v_h = -1 * sim.wingbeat_eff * self.AMratio * self.nu
+                    # horizontal speed [m/s] in calm winds
+                    V_h = np.sqrt(self.U**2 + self.V**2)
+                    if (self.v_h + V_h) < sim.min_flight_speed:
+                        self.v_h = sim.min_flight_speed - V_h
+                    # vertical speed [m/s]
+                    self.v_z = sim.wingbeat_eff * self.AMratio * (self.nu - self.nu_L)
+                self.update_v_h_components(self.v_h)
         elif self.state in ['LANDING_S', 'LANDING_W', 'LANDING_T', 'LANDING_P', 'EXHAUSTED']:
             # drifting on wind, wings folded
             self.nu = 0.0
@@ -256,11 +239,6 @@ class Flier:
 
     def zero_motion(self, sim):
         """Set motion variable values for stationary Flier."""
-        if sim.full_physics:
-            self.a_h = 0.0
-            self.a_x = 0.0
-            self.a_y = 0.0
-            self.a_z = 0.0
         self.nu = 0.0
         self.v_h = 0.0
         self.v_x = 0.0
@@ -332,13 +310,13 @@ class Flier:
                     self.mass, self.fecundity]
         return loc_info
 
-    def update_state_motion(self, sim, clock, sbw, radar, new_state):
+    def update_state_motion(self, sim, sbw, radar, new_state):
         """Update Flier state and motion."""
         self.update_state(new_state)
         if new_state in ['CRASH', 'EXIT']:
             self.zero_motion(sim)
         else:
-            self.update_motion(sim, clock, sbw, radar)
+            self.update_motion(sim, sbw, radar)
         return
 
     def state_decisions(self, sim, clock, sbw, defoliation, radar,
@@ -363,31 +341,31 @@ class Flier:
                         liftoff_id_str = '%s_%d' % (self.flier_id, self.nflights)
                         liftoff_locations[liftoff_id_str] = \
                             self.liftoff_loc_info(clock)
-                        self.update_state_motion(sim, clock, sbw, radar, 'LIFTOFF')
+                        self.update_state_motion(sim, sbw, radar, 'LIFTOFF')
                         self.nflights += 1
         elif self.state in ['LIFTOFF', 'FLIGHT']:
             if not self.inside_grid(sim):
-                self.update_state_motion(sim, clock, sbw, radar, 'EXIT')
+                self.update_state_motion(sim, sbw, radar, 'EXIT')
             elif clock.current_dt > self.utc_sunrise_time:
-                self.update_state_motion(sim, clock, sbw, radar, 'LANDING_S')
+                self.update_state_motion(sim, sbw, radar, 'LANDING_S')
             elif self.Precip >= sim.max_precip:
-                self.update_state_motion(sim, clock, sbw, radar, 'LANDING_P')
+                self.update_state_motion(sim, sbw, radar, 'LANDING_P')
             else:
                 self.update_empirical_values(sim, sbw)
                 if self.nu == 0.0:
-                    self.update_state_motion(sim, clock, sbw, radar, 'LANDING_T')
+                    self.update_state_motion(sim, sbw, radar, 'LANDING_T')
                 else:
                     if self.state == 'LIFTOFF':
                         if self.alt_AGL >= sim.climb_decision_hgt:
                             windspeed = np.sqrt(self.U ** 2 + self.V ** 2)
                             if windspeed < sim.min_windspeed:
-                                self.update_state_motion(sim, clock, sbw, radar, 'LANDING_W')
+                                self.update_state_motion(sim, sbw, radar, 'LANDING_W')
                             else:
-                                self.update_state_motion(sim, clock, sbw, radar, 'FLIGHT')
+                                self.update_state_motion(sim, sbw, radar, 'FLIGHT')
                     elif (self.state == 'FLIGHT') and (self.alt_AGL <= 0.0):
-                        self.update_state_motion(sim, clock, sbw, radar, 'CRASH')
+                        self.update_state_motion(sim, sbw, radar, 'CRASH')
                     else:
-                        self.update_motion(sim, clock, sbw, radar)
+                        self.update_motion(sim, sbw, radar)
         elif self.state in ['CRASH', 'LANDING_W', 'LANDING_T', 'LANDING_P', 'LANDING_S']:
             if not self.inside_grid(sim):
                 self.update_state('EXIT')
@@ -396,7 +374,7 @@ class Flier:
                     # allow moth to resume normal flight if it falls into a warm enough layer
                     if self.nu > 0.0:
                         self.update_state('FLIGHT')
-                self.update_motion(sim, clock, sbw, radar)
+                self.update_motion(sim, sbw, radar)
             else:
                 self.nu = 0.0
                 self.zero_motion(sim)  # a landed moth is stationary
@@ -421,64 +399,40 @@ class Flier:
                 self.update_state('EXIT')
                 self.sfc_elev = 0.0
             self.alt_MSL = self.sfc_elev
-        self.update_status(sim, clock)
+        self.update_status(clock)
         if self.state in ['SUNRISE', 'SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             self.active = 0
             remove = True
         return remove, liftoff_locations, landing_locations  # bool + 2 * dict
 
     @staticmethod
-    def flight_status_columns(sim):
+    def flight_status_columns():
         """Dataframe column names for Flier status information."""
-        if sim.full_physics:
-            # full physics formulation
-            columns = ['flight_status', 'date_time', 'prev_state', 'state',
-                       'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
-                       'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
-                       'F', 'gravidity', 'nu', 'nu_L', 'weight', 'lift', 'drag',
-                       'thrust', 'body_angle', 'a_x', 'a_y', 'a_z', 'v_x', 'v_y',
-                       'v_z', 'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip',
-                       'GpH', 'U', 'V', 'W']
-        else:
-            columns = ['flight_status', 'date_time', 'prev_state', 'state',
-                       'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
-                       'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
-                       'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
-                       'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
-                       'U', 'V', 'W']
+        columns = ['flight_status', 'date_time', 'prev_state', 'state',
+                   'northing', 'easting', 'UTM_zone', 'lat', 'lon', 'sfc_elev',
+                   'alt_AGL', 'alt_MSL', 'defoliation', 'sex', 'M', 'A', 'F_0',
+                   'F', 'gravidity', 'nu', 'nu_L', 'v_h', 'v_x', 'v_y', 'v_z',
+                   'v_r', 'v_a', 'bearing', 'range', 'P', 'T', 'Precip', 'GpH',
+                   'U', 'V', 'W']
         return columns
 
-    def flight_status_info(self, sim, clock):
+    def flight_status_info(self, clock):
         """Concatenate info on Flier location, status, and conditions."""
-        if sim.full_physics:
-            # full physics formulation
-            status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
-                           self.state, self.northing, self.easting, self.UTM_zone, self.lat,
-                           self.lon, self.sfc_elev, self.alt_AGL, self.alt_MSL,
-                           self.defoliation_level, self.sex, self.mass, self.forewing_A,
-                           self.fecundity_0, self.fecundity, self.gravidity, self.nu,
-                           self.nu_L, self.weight, self.lift, self.drag, self.thrust,
-                           self.body_angle, self.a_x, self.a_y, self.a_z, self.v_x, self.v_y,
-                           self.v_z, self.v_radial, self.v_azimuthal, self.bearing,
-                           self.flight_range, self.P, self.T, self.Precip, self.GpH, self.U,
-                           self.V, self.W]
-        else:
-            status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
-                           self.state, self.northing, self.easting, self.UTM_zone, self.lat,
-                           self.lon, self.sfc_elev, self.alt_AGL, self.alt_MSL,
-                           self.defoliation_level, self.sex, self.mass, self.forewing_A,
-                           self.fecundity_0, self.fecundity, self.gravidity, self.nu,
-                           self.nu_L, self.v_h, self.v_x, self.v_y, self.v_z, self.v_radial,
-                           self.v_azimuthal, self.bearing, self.flight_range, self.P, self.T,
-                           self.Precip, self.GpH, self.U, self.V, self.W]
+        status_info = [self.flight_status_idx, clock.current_dt_str, self.prev_state,
+                       self.state, self.northing, self.easting, self.UTM_zone, self.lat,
+                       self.lon, self.sfc_elev, self.alt_AGL, self.alt_MSL,
+                       self.defoliation_level, self.sex, self.mass, self.forewing_A,
+                       self.fecundity_0, self.fecundity, self.gravidity, self.nu,
+                       self.nu_L, self.v_h, self.v_x, self.v_y, self.v_z, self.v_radial,
+                       self.v_azimuthal, self.bearing, self.flight_range, self.P, self.T,
+                       self.Precip, self.GpH, self.U, self.V, self.W]
         return status_info
 
-    def update_status(self, sim, clock):
+    def update_status(self, clock):
         """Record Flier status for output."""
-        flight_status_str = '%s_%s' % \
-            (self.flier_id, str(self.flight_status_idx).zfill(7))
-        self.flight_status[flight_status_str] = \
-            self.flight_status_info(sim, clock)
+        flight_status_str = '%s_%s' % (self.flier_id,
+                                       str(self.flight_status_idx).zfill(7))
+        self.flight_status[flight_status_str] = self.flight_status_info(clock)
         self.flight_status_idx += 1
         return
 
@@ -492,7 +446,7 @@ class Flier:
             outpath = '%s_simulation_%s_output' % \
                       (sim.simulation_name, str(sim.simulation_number).zfill(5))
         status_df = pd.DataFrame.from_dict(self.flight_status, orient='index')
-        status_df.columns = self.flight_status_columns(sim)
+        status_df.columns = self.flight_status_columns()
         status_df = status_df.sort_values(by=['flight_status'])
         if sim.experiment_number:
             outfname = '%s/flier_%s_%s_%s_report.csv' % \

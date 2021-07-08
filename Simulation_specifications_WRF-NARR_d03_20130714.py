@@ -20,7 +20,6 @@ class Simulation(object):
         self.experiment_number = 0  # if there are multiple experiments, changed by user input
         self.simulation_number = 0  # if there are multiple simulations, changed by user input
         self.n_fliers = 1000        # recommended max 1000 per simulation
-        self.full_physics = 0       # using parameterized flight physics (for now)
         #
         # simulation spatial domain
         self.grid_min_lat, self.grid_max_lat = 42.0415, 51.3277
