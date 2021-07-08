@@ -43,9 +43,11 @@ class Flier:
         self.GpH = calc_GpH(self.lat, self.alt_MSL)
         if sim.use_defoliation:
             self.landcover_index = flier_location[2]
+            self.lc_type = lc_category(self.landcover_index)
             self.defoliation_level = flier_location[3]
         else:
             self.landcover_index = -9999
+            self.lc_type = 'null'
             self.defoliation_level = 0
         #
         # solar time attributes (to be initialized elsewhere)
@@ -270,22 +272,22 @@ class Flier:
             self.v_azimuthal = 0.0
         return
 
-    def oviposition(self, sim, sbw, lc_type):
+    def oviposition(self, sim, sbw):
         """Determine if oviposition occurs and calculate egg deposition."""
         if self.state != 'INITIALIZED':
             return
-        if lc_type == 'null':
+        if self.lc_type == 'null':
             self.update_state('EXIT')
-        elif lc_type == 'HOST_FOREST':
+        elif self.lc_type == 'HOST_FOREST':
             self.update_state('OVIPOSITION')
             self.update_gravidity(sbw)
             if self.gravidity <= 0.01:
                 self.update_state('SPENT')
             else:
                 self.update_empirical_values(sim, sbw)
-        elif lc_type == 'OTHER_FOREST':
+        elif self.lc_type == 'OTHER_FOREST':
             self.prev_state = 'FOREST'
-        elif lc_type == 'NONFOREST':
+        elif self.lc_type == 'NONFOREST':
             self.prev_state = 'NONFOREST'
         return
 
@@ -327,6 +329,7 @@ class Flier:
         """Update Flier environment using WRF-derived values."""
         self.sfc_elev = environment[0]         # [m]
         self.landcover_index = environment[1]  # [-]
+        self.lc_type = lc_category(self.landcover_index)
         self.T = environment[2]                # [C]
         self.P = environment[3]                # [hPa]
         self.Precip = environment[4]           # [mm/h]
@@ -357,10 +360,10 @@ class Flier:
             return False
         return True
 
-    def liftoff_loc_info(self, clock, lc_type):
+    def liftoff_loc_info(self, clock):
         """Concatenate info on Flier liftoff location and conditions."""
         loc_info = [self.lat, self.lon, self.UTM_zone, self.easting, self.northing,
-                    self.sfc_elev, lc_type, self.defoliation_level, self.sex,
+                    self.sfc_elev, self.lc_type, self.defoliation_level, self.sex,
                     self.mass, self.forewing_A, self.AMratio, self.fecundity, self.nu,
                     self.nu_L, clock.current_dt_str, self.utc_sunset_time.isoformat(),
                     self.circadian_T_ref, self.utc_t_0.isoformat(), self.utc_t_c.isoformat(),
@@ -368,10 +371,10 @@ class Flier:
                     self.P, self.U, self.V, self.W]
         return loc_info
 
-    def landing_loc_info(self, lc_type):
+    def landing_loc_info(self):
         """Concatenate info on Flier landing location and conditions."""
         loc_info = [self.lat, self.lon, self.UTM_zone, self.easting, self.northing,
-                    self.sfc_elev, lc_type, self.defoliation_level, self.sex,
+                    self.sfc_elev, self.lc_type, self.defoliation_level, self.sex,
                     self.mass, self.fecundity]
         return loc_info
 
@@ -388,13 +391,11 @@ class Flier:
                         liftoff_locations, landing_locations):
         """The main decision-making block."""
         self.update_nu(sim, sbw)
-        lc_type = lc_category(self.landcover_index)
         remove = False
         #
         if (self.state == 'INITIALIZED') and (self.sex):
-            self.oviposition(sim, sbw, lc_type)
+            self.oviposition(sim, sbw)
         elif self.state in ['INITIALIZED', 'OVIPOSITION']:
-            # self.calc_circadian_p(clock)
             if self.circadian_p >= self.circadian_p_threshold:
                 self.update_state('READY')
         elif self.state in ['READY', 'HOST', 'FOREST', 'NONFOREST']:
@@ -409,7 +410,7 @@ class Flier:
                     else:
                         liftoff_id_str = '%s_%d' % (self.flier_id, self.nflights)
                         liftoff_locations[liftoff_id_str] = \
-                            self.liftoff_loc_info(clock, lc_type)
+                            self.liftoff_loc_info(clock)
                         self.update_state_motion(sim, clock, sbw, radar, 'LIFTOFF')
                         self.nflights += 1
         elif self.state in ['LIFTOFF', 'FLIGHT']:
@@ -448,18 +449,18 @@ class Flier:
                 self.nu = 0.0
                 self.zero_motion(sim)  # a landed moth is stationary
                 landing_id_str = '%s_%d' % (self.flier_id, self.nflights)
-                landing_locations[landing_id_str] = self.landing_loc_info(lc_type)
-                if lc_type == 'null':
+                landing_locations[landing_id_str] = self.landing_loc_info()
+                if self.lc_type == 'null':
                     self.update_state('EXIT')
-                elif lc_type == 'WATER':
+                elif self.lc_type == 'WATER':
                     self.update_state('SPLASHED')
-                elif lc_type == 'HOST_FOREST':
+                elif self.lc_type == 'HOST_FOREST':
                     self.update_state('HOST')
                     if sim.use_defoliation:
                         self.defoliation_level = defoliation.get_value(self.lon, self.lat)
-                elif lc_type == 'OTHER_FOREST':
+                elif self.lc_type == 'OTHER_FOREST':
                     self.update_state('FOREST')
-                elif lc_type == 'NONFOREST':
+                elif self.lc_type == 'NONFOREST':
                     self.update_state('NONFOREST')
         elif self.state in ['SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             self.zero_motion(sim)  # a spent/lost/dead moth is stationary
