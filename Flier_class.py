@@ -272,54 +272,6 @@ class Flier:
             self.v_azimuthal = 0.0
         return
 
-    """
-    def oviposition(self, sim, sbw):
-        ""Determine if oviposition occurs and calculate egg deposition.""
-        if self.state != 'INITIALIZED':
-            return
-        if self.lc_type == 'null':
-            self.update_state('EXIT')
-        elif self.lc_type == 'HOST_FOREST':
-            self.update_state('OVIPOSITION')
-            self.update_gravidity(sbw)
-            if self.gravidity <= 0.01:
-                self.update_state('SPENT')
-            else:
-                self.update_empirical_values(sim, sbw)
-        elif self.lc_type == 'OTHER_FOREST':
-            self.prev_state = 'FOREST'
-        elif self.lc_type == 'NONFOREST':
-            self.prev_state = 'NONFOREST'
-        return
-
-    def update_gravidity(self, sbw):
-        ""Update moth gravidity (fraction of original eggs remaining).
-           Changes by laying eggs, a portion of remaining fecundity at a time.
-           TO-DO: brood volume should be a function of temperature,
-           and that calculation should probably reside in SBW_empirical.py""
-        brood_eggs = int(self.fecundity * sbw.F_frac_per_brood)
-        self.fecundity -= brood_eggs
-        self.gravidity = self.fecundity / self.fecundity_0
-        self.update_mass(sbw, brood_eggs)
-        eggs_laid_str = '%s_%d' % (self.flier_id, self.nflights)
-        self.eggs_laid[eggs_laid_str] = [self.lat, self.lon, self.UTM_zone,
-                                         self.easting, self.northing, brood_eggs]
-        return
-
-    def update_mass(self, sbw, d_eggs=0):
-        ""Update moth mass, which changes by
-           1. laying eggs (females) and/or
-           2. burning stored energy in flight (someday).""
-        if d_eggs:
-            self.mass = \
-                sbw.calc_mass_from_gravidity(self.forewing_A, self.gravidity, self.mass_err)
-        else:
-            dM = 0.0  # placeholder for energetic formulation
-            self.mass -= dM
-        self.calc_AM_ratio()
-        return
-    """
-
     def update_empirical_values(self, sim, sbw):
         """Update empirical flight parameters."""
         self.nu_L = sbw.calc_nu_L(self.forewing_A, self.mass)
@@ -395,9 +347,6 @@ class Flier:
         self.update_nu(sim, sbw)
         remove = False
         #
-        # if (self.state == 'INITIALIZED') and (self.sex):
-        #     self.oviposition(sim, sbw)
-        # el
         if self.state in ['INITIALIZED', 'OVIPOSITION']:
             if self.circadian_p >= self.circadian_p_threshold:
                 self.update_state('READY')
