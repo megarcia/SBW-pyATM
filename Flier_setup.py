@@ -18,7 +18,7 @@ from Geography import inside_grid, inside_init_box
 from Map_class import lc_category
 
 
-def read_flier_locations_attributes(sim):
+def read_flier_locations_attributes(sim, clock):
     """Read BioSIM CSV output file with moth emergence dates, locations, attributes.
        Filter to desired moth age (2-14 days) and location in simulation domain/box."""
     print('initial setup : reading and processing %s' % sim.biosim_fname)
@@ -42,7 +42,7 @@ def read_flier_locations_attributes(sim):
     TDelta = list()
     for i in range(n_attributes):
         DT = datetime(YY[i], MM[i], DD[i], 0, 0, 0, tzinfo=tz.utc)
-        TDelta.append(sim.start_time - DT)
+        TDelta.append(clock.start_dt - DT)
     attributes_df['timedelta'] = TDelta
     # select moths that are fertilized on or before the start date
     ready_df = attributes_df[attributes_df['timedelta'] >= timedelta(days=2)]

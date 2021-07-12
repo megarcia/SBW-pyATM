@@ -104,7 +104,7 @@ def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defolia
     else:
         # read flier locations and attributes from BioSIM output CSV file
         print('initial setup : obtaining BioSIM output flier locations and attributes')
-        flier_locations, flier_attributes = read_flier_locations_attributes(sim)
+        flier_locations, flier_attributes = read_flier_locations_attributes(sim, clock)
     #
     # select n_fliers from available pool
     n_fliers_available = len(flier_locations)
