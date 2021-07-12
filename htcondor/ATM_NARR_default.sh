@@ -19,11 +19,10 @@ eval "$(miniconda/bin/conda shell.bash hook)"
 # echo ""
 conda update -y -n base -c defaults conda
 conda install -y -c conda-forge iso8601 numpy scipy pandas matplotlib=3.2 basemap netcdf4 libiconv gdal basemap-data-hires wrf-python
-ln -s libtinfo.so.6 miniconda/lib/libtinfo.so.5
 
 echo "------------------------------"
 date
-export PYTHONPATH=$(pwd)/miniconda:$(pwd)/miniconda/lib/python3.7:$(pwd)/miniconda/lib/python3.7/lib-dynload:$(pwd)/miniconda/lib/python3.7/site-packages
+export PYTHONPATH=$(pwd)/miniconda:$(pwd)/miniconda/lib/python3.8:$(pwd)/miniconda/lib/python3.8/lib-dynload:$(pwd)/miniconda/lib/python3.8/site-packages
 echo "PYTHONPATH = $PYTHONPATH"
 echo ""
 export PYTHONHOME=$PYTHONPATH
