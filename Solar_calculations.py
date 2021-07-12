@@ -157,12 +157,12 @@ class Sun(object):
 def update_suntimes(clock, flier):
     """Update sunset/sunrise times based on location."""
     sun = Sun(lat=flier.lat, lon=flier.lon, UTC_offset=clock.UTC_offset)
-    flier.local_sunset_time = sun.sunset(when=clock.start_time) + \
+    flier.local_sunset_time = sun.sunset(when=clock.start_dt) + \
         timedelta(hours=clock.UTC_offset)
     flier.utc_sunset_time = flier.local_sunset_time - \
         timedelta(hours=clock.UTC_offset)
     flier.utc_sunset_time = flier.utc_sunset_time.replace(tzinfo=tz.utc)
-    flier.local_sunrise_time = sun.sunrise(when=clock.end_time) + \
+    flier.local_sunrise_time = sun.sunrise(when=clock.end_dt) + \
         timedelta(hours=clock.UTC_offset)
     flier.utc_sunrise_time = flier.local_sunrise_time - \
         timedelta(hours=clock.UTC_offset)
