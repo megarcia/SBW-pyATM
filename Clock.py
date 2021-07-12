@@ -33,7 +33,7 @@ class Clock:
         #
         self.dt_interval = sim.dt
         #
-        self.current_dt = sim.start_time
+        self.current_dt = self.start_dt
         self.current_dt_str = self.current_dt.isoformat()
         self.current_dt_local = self.current_dt + timedelta(hours=self.UTC_offset)
         #
