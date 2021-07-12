@@ -126,7 +126,7 @@ def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defolia
           (sim.n_fliers, n_female, n_male))
     #
     # summarize flier locations
-    flier_locations = summarize_locations(fliers, 'initial setup')
+    flier_locations = summarize_locations(clock, fliers)
     #
     # calculate/assign flier circadian attributes
     if sim.calculate_circadian_from_WRF:
