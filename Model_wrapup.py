@@ -6,7 +6,7 @@ Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
 matt.e.garcia@gmail.com
 
-Copyright (C) 2019, 2020 by Matthew Garcia
+Copyright (C) 2021 by Matthew Garcia
 """
 
 
@@ -15,12 +15,12 @@ from Flier_grids import grid_liftoff_locations, grid_landing_locations
 from Flier_grids import grid_egg_deposition
 
 
-def report_remaining_fliers(sim, fliers, trajectories, egg_deposition):
+def report_remaining_fliers(sim, clock, fliers, trajectories, egg_deposition):
     """Report status of any remaining fliers at end of simulation."""
     print('simulation wrapup : reporting status of remaining active fliers')
     for flier in fliers.values():
         if flier.active:
-            trajectories = flier.report_status(sim, trajectories, sim.end_time)
+            trajectories = flier.report_status(sim, clock, trajectories)
         if flier.sex and flier.eggs_laid:
             for eggs_id, egg_location in flier.eggs_laid.items():
                 egg_deposition[eggs_id] = egg_location

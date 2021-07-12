@@ -177,7 +177,7 @@ def ATM_main():
     print()
     if n_active_fliers:
         trajectories, egg_deposition = \
-            report_remaining_fliers(sim, all_fliers, trajectories, egg_deposition)
+            report_remaining_fliers(sim, clock, all_fliers, trajectories, egg_deposition)
     #
     # end-of-simulation flight statistics, trajectories, location reports, grids
     report_statistics(sim, clock, all_fliers_flight_status, liftoff_locations)
