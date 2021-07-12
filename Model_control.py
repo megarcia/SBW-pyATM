@@ -57,7 +57,7 @@ def ATM_main():
     print('initial setup : specified WRF input interval %d min' % sim.WRF_input_interval)
     #
     # load initial WRF grids
-    last_wrf_time, last_wrf_grids = load_initial_WRF_grids(sim)
+    last_wrf_time, last_wrf_grids = load_initial_WRF_grids(sim, clock)
     #
     # initialize map objects as provided
     topography, landcover, defoliation = setup_maps(sim)

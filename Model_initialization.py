@@ -67,9 +67,9 @@ def command_line_args(sim, args):
     return
 
 
-def load_initial_WRF_grids(sim):
+def load_initial_WRF_grids(sim, clock):
     """Load initial WRF grids."""
-    last_time = sim.start_time
+    last_time = clock.start_dt
     last_grids = WRFgrids(last_time, sim.WRF_input_path, sim.WRF_grid, 'initial setup')
     print('initial setup : WRF %s grids object initialized' % str(last_time.isoformat()))
     return last_time, last_grids  # datetime + WRFgrids objects
