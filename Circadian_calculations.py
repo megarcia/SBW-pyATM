@@ -13,7 +13,7 @@ Copyright (C) 2021 by Matthew Garcia
 from datetime import datetime, timedelta
 from datetime import timezone as tz
 import numpy as np
-from Interpolate import interpolate_time
+from Interpolation import interpolate_time
 from WRFgrids_class import check_for_WRF_file, WRFgrids
 
 

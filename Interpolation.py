@@ -1,6 +1,6 @@
 # pylint: disable=C0103,R0913
 """
-Python script "Interpolate.py"
+Python script "Interpolation.py"
 by Matthew Garcia, Postdoctoral Research Associate
 Dept. of Forest and Wildlife Ecology
 University of Wisconsin - Madison
@@ -54,4 +54,4 @@ def get_interp_vals_2D(lons, lats, var, interp_method, locs_lon, locs_lat):
                         (locs_lon, locs_lat), method=interp_method)
     return var_vals
 
-# end Interpolate.py
+# end Interpolation.py

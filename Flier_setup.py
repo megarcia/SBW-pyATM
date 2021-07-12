@@ -13,7 +13,7 @@ Copyright (C) 2021 by Matthew Garcia
 from datetime import datetime, timedelta, timezone as tz
 import numpy as np
 import pandas as pd
-from Interpolate import get_interp_vals_2D
+from Interpolation import get_interp_vals_2D
 from Geography import inside_grid, inside_init_box
 from Map_class import lc_category
 

@@ -15,9 +15,9 @@ import sys
 import numpy as np
 from netCDF4 import Dataset
 from wrf import to_np, getvar, smooth2d, latlon_coords
-from Interpolate import get_vals_1D
-from Interpolate import get_nearest_vals_2D, get_nearest_columns
-from Interpolate import get_interp_vals_2D
+from Interpolation import get_vals_1D
+from Interpolation import get_nearest_vals_2D, get_nearest_columns
+from Interpolation import get_interp_vals_2D
 
 
 def check_for_WRF_file(file_date_time, path, wrf_grid):

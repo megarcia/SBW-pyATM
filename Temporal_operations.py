@@ -13,7 +13,7 @@ Copyright (C) 2021 by Matthew Garcia
 import copy
 from datetime import timedelta
 from WRFgrids_class import WRFgrids
-from Interpolate import interpolate_time
+from Interpolation import interpolate_time
 from Solar_calculations import update_suntimes
 from Circadian_calculations import calc_circadian_p
 
