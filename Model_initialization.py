@@ -134,6 +134,6 @@ def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defolia
                                   topography, landcover)
     else:
         assign_circadian(sim, sbw, fliers)
-    return fliers  # dict
+    return fliers, flier_locations  # 2 * dict
 
 # end Model_initialization.py

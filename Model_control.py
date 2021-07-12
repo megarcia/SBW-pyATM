@@ -66,11 +66,8 @@ def ATM_main():
     radar = setup_radar(sim)
     #
     # initialize and define collection of fliers
-    all_fliers = setup_fliers(sim, clock, sbw, last_wrf_grids, topography,
-                              landcover, defoliation)
-    #
-    # summarize flier locations
-    flier_locations = summarize_locations(all_fliers, 'initial setup')
+    all_fliers, flier_locations = setup_fliers(sim, clock, sbw, last_wrf_grids,
+                                               topography, landcover, defoliation)
     #
     # set up various data structures
     all_fliers_flight_status = dict()
