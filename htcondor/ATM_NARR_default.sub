@@ -8,7 +8,7 @@ log = ATM_NARR_$(grid)_$(date)_default_$INT(rep_num).log
 output = ATM_NARR_$(grid)_$(date)_default_$INT(rep_num).out
 error = ATM_NARR_$(grid)_$(date)_default_$INT(rep_num).err
 requirements = (OpSys == "LINUX") && (OpSysMajorVer == 7)
-transfer_input_files = miniconda.sh,Circadian_calculations.py,Clock.py,Flier_class.py,Flier_grids.py,Flier_setup.py,Flier_summary.py,Geography.py,Interpolate.py,Map_class.py,Model_control.py,Model_initialization.py,Model_wrapup.py,Oviposition_calculations.py,Plots_gen.py,Radar_class.py,SBW_empirical.py,Simulation_specifications_WRF-NARR_$(grid)_$(date).py,Solar_calculations.py,Temporal_operations.py,WRFgrids_class.py,2013_BioSIM_SBW_output.csv,WRF-NARR_$(grid)_$(date)_grids.tar.gz
+transfer_input_files = miniconda.sh,Circadian_calculations.py,Clock.py,Flier_class.py,Flier_grids.py,Flier_setup.py,Flier_summary.py,Geography.py,Interpolation.py,Map_class.py,Model_control.py,Model_initialization.py,Model_wrapup.py,Oviposition_calculations.py,Plots_gen.py,Radar_class.py,SBW_empirical.py,Simulation_specifications_WRF-NARR_$(grid)_$(date).py,Solar_calculations.py,Temporal_operations.py,WRFgrids_class.py,2013_BioSIM_SBW_output.csv,WRF-NARR_$(grid)_$(date)_grids.tar.gz
 executable = ATM_NARR_default.sh
 arguments = WRF-NARR_$(grid)_$(date) $INT(rep_num)
 request_cpus = 1
