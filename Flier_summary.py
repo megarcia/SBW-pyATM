@@ -381,7 +381,7 @@ def flight_status_columns():
     return columns
 
 
-def report_flier_statistics(sim, all_fliers_flight_status, liftoff_locations):
+def report_flier_statistics(sim, clock, all_fliers_flight_status, liftoff_locations):
     """Calculate and report various statistics across all Fliers in simulation."""
     #
     n_fliers_male = 0
@@ -556,7 +556,7 @@ def report_flier_statistics(sim, all_fliers_flight_status, liftoff_locations):
         outfile.write('\n')
         #
         summary_string, histograms = \
-            report_liftoff_stats(outfile, summary_string, liftoff_locations, sim.start_time)
+            report_liftoff_stats(outfile, summary_string, liftoff_locations, clock.start_dt)
         liftoff_time_counts, liftoff_time_bins = histograms[0]
         liftoff_time_counts_female, liftoff_time_bins_female = histograms[1]
         liftoff_time_counts_male, liftoff_time_bins_male = histograms[2]

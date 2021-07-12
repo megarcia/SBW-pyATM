@@ -180,7 +180,7 @@ def ATM_main():
             report_remaining_fliers(sim, all_fliers, trajectories, egg_deposition)
     #
     # end-of-simulation flight statistics, trajectories, location reports, grids
-    report_statistics(sim, all_fliers_flight_status, liftoff_locations)
+    report_statistics(sim, clock, all_fliers_flight_status, liftoff_locations)
     report_trajectories(sim, next_wrf_grids, trajectories)
     report_summary_grids(sim, liftoff_locations, landing_locations, egg_deposition)
     #

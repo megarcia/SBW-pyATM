@@ -27,10 +27,10 @@ def report_remaining_fliers(sim, fliers, trajectories, egg_deposition):
     return trajectories, egg_deposition
 
 
-def report_statistics(sim, flight_status, liftoff_locs):
+def report_statistics(sim, clock, flight_status, liftoff_locs):
     """Report flight statistics for all flights."""
     print('simulation wrapup : processing flight statistics')
-    report_flier_statistics(sim, flight_status, liftoff_locs)
+    report_flier_statistics(sim, clock, flight_status, liftoff_locs)
     return
 
 
