@@ -111,7 +111,7 @@ def ATM_main():
         #
         # shuffle and update WRF grids if needed
         wrf_grids_updated = False
-        if clock.current_dt > next_wrf_time:  # datetime objects in UTC
+        if clock.current_dt == next_wrf_time:  # datetime objects in UTC
             last_wrf_time, last_wrf_grids, next_wrf_time, next_wrf_grids = \
                 shuffle_WRF_grids(sim, clock, next_wrf_time, next_wrf_grids)
             wrf_grids_updated = True
