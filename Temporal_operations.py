@@ -78,7 +78,7 @@ def update_flier_environments(clock, fliers, environments):
 def interpolate_flier_environments(clock, fliers, environments_last,
                                    environments_next, last_wrf_time, next_wrf_time):
     """Interpolate between two sets of WRF grids for flier environments."""
-    print('%s UTC : interpolating flier environments' % clock.current_dt_str)
+    print('%s : interpolating flier environments' % clock.current_dt_str)
     for flier_id, flier in fliers.items():
         last_env = environments_last[flier_id]
         next_env = environments_next[flier_id]
