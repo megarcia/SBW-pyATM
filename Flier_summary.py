@@ -98,7 +98,7 @@ def report_flier_locations(sim, clock, radar, locations):
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
              clock.current_dt_str, str(sim.simulation_number).zfill(5))
     location_df.to_csv(outfname)
-    print('%s UTC : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
+    print('%s : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
     if sim.use_radar and sim.npy_grids:
         grid_flier_locations(sim, clock, radar, locations)
         grid_flier_dvels(sim, clock, radar, locations)
