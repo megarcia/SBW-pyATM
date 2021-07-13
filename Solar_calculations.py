@@ -168,40 +168,4 @@ def update_suntimes(clock, flier):
         timedelta(hours=clock.UTC_offset)
     flier.utc_sunrise_time = flier.utc_sunrise_time.replace(tzinfo=tz.utc)
 
-
-def test():
-    """Run a quick test for sunset/sunrise times at the specified radar location."""
-    from Simulation_specifications import Simulation
-    from Clock import Clock
-    sim = Simulation()
-    clock = Clock(sim)
-    print()
-    print('at XAM radar location:')
-    print()
-    sun = Sun(lat=sim.radar_lat, lon=sim.radar_lon, UTC_offset=clock.UTC_offset)
-    print('start =', clock.start_dt_str)
-    local_sunset_time = sun.sunset(when=clock.start_dt) + timedelta(hours=clock.UTC_offset)
-    print('local sunset = ', local_sunset_time)
-    utc_sunset_time = local_sunset_time - timedelta(hours=clock.UTC_offset)
-    print('UTC sunset = ', utc_sunset_time)
-    print()
-    print('end =', clock.end_dt_str)
-    local_sunrise_time = sun.sunrise(when=clock.end_dt) + timedelta(hours=clock.UTC_offset)
-    print('local sunrise = ', local_sunrise_time)
-    utc_sunrise_time = local_sunrise_time - timedelta(hours=clock.UTC_offset)
-    print('UTC sunrise = ', utc_sunrise_time)
-    print()
-
-
-if __name__ == "__main__":
-    test()
-    #
-    # s = Sun(lat=43.058923, lon=-89.502096, UTC_offset=-5.0)  # Madison, WI
-    # print 'today is %s' % datetime.today()
-    # print 'sunrise at %s local time' % s.sunrise()
-    # print 'solar noon at %s local time' % s.solarnoon()
-    # print 'sunset at %s local time' % s.sunset()
-    # print s.sunrise() < s.sunset()
-    # print s.sunset() < s.solarnoon()
-
 # end Solar_calculations.py
