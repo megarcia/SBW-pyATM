@@ -98,7 +98,7 @@ dt = 120
 #
 local_sunset_time, utc_sunset_time = update_suntimes(flier_lat, flier_lon, UTC_offset,
                                                      start_time)
-print('sunset = %s EST' % local_sunset_time.isoformat())
+print('sunset = %s EDT' % local_sunset_time.isoformat())
 print('sunset = %s UTC' % utc_sunset_time.isoformat())
 print()
 #
