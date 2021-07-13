@@ -76,18 +76,17 @@ def calc_circadian_p(date_time, utc_t_0, utc_t_c, utc_t_m):
             tau_num = num_t_diff.seconds / 3600.0
             denom_t_diff = utc_t_m - utc_t_c
         tau_denom = denom_t_diff.seconds / 3600.0
-        print('    tau_num = %.3f' % tau_num)
-        print('    tau_denom = %.3f' % tau_denom)
+        # print('    tau_num = %.3f' % tau_num)
+        # print('    tau_denom = %.3f' % tau_denom)
         tau = tau_num / tau_denom
-        print('    tau = %.3f' % tau)
+        # print('    tau = %.3f' % tau)
         term2 = (2.0 / 3.0) * tau**3
         term3 = (1.0 / 5.0) * tau**5
         circadian_p = (C + tau - term2 + term3) / (2 * C)
-        # circadian_p = np.max([circadian_p, 0.0])
-        # circadian_p = np.min([circadian_p, 1.0])
     return circadian_p
 
 
+print()
 flier_lat = 49.0851
 flier_lon = -72.6678
 flier_T_ref = 25.3166
@@ -96,30 +95,34 @@ start_time = datetime(2013, 7, 15, 21, 0, 0, tzinfo=tz.utc)
 end_time = datetime(2013, 7, 16, 10, 0, 0, tzinfo=tz.utc)
 dt = 120
 #
+print('Flier location:')
+print('lat = %.4f' % flier_lat)
+print('lon = %.4f' % flier_lon)
+print()
 local_sunset_time, utc_sunset_time = update_suntimes(flier_lat, flier_lon, UTC_offset,
                                                      start_time)
-print('sunset = %s EDT' % local_sunset_time.isoformat())
-print('sunset = %s UTC' % utc_sunset_time.isoformat())
+print('sunset = %s EDT' % local_sunset_time)
+print('sunset = %s UTC' % utc_sunset_time)
 print()
 #
 delta_s, delta_0, delta_f, delta_f_potential = calc_circadian_deltas(flier_T_ref)
-print('delta_s = %.2f' % delta_s)
-print('delta_0 = %.2f' % delta_0)
-print('delta_f = %.2f' % delta_f)
-print('delta_f_potential = %.2f' % delta_f_potential)
+print('delta_s = %.2f h' % delta_s)
+print('delta_0 = %.2f h' % delta_0)
+print('delta_f = %.2f h' % delta_f)
+print('delta_f_potential = %.2f h' % delta_f_potential)
 print()
 #
 utc_t_0, utc_t_c, utc_t_m = initialize_circadian_attributes(delta_s, delta_0, delta_f,
                                                             delta_f_potential,
                                                             local_sunset_time)
-print('utc_t_0 = %s' % utc_t_0.isoformat())
-print('utc_t_c = %s' % utc_t_c.isoformat())
-print('utc_t_m = %s' % utc_t_m.isoformat())
+print('t_0 = %s UTC' % utc_t_0)
+print('t_c = %s UTC' % utc_t_c)
+print('t_m = %s UTC' % utc_t_m)
 print()
 #
 date_time = start_time
 while date_time <= end_time:
     circadian_p = calc_circadian_p(date_time, utc_t_0, utc_t_c, utc_t_m)
-    print('%s circadian_p = %.3f' % (date_time.isoformat(), circadian_p))
+    print('%s : circadian_p = %.3f' % (date_time, circadian_p))
     date_time = date_time + timedelta(seconds=dt)
-#
+print()
