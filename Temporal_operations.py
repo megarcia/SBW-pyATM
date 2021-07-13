@@ -150,7 +150,7 @@ def remove_fliers(sim, clock, fliers, flight_status, trajectories,
 def load_next_WRF_grids(sim, clock):
     """Load next WRF grids in temporal sequence."""
     next_time = clock.current_dt + timedelta(minutes=sim.WRF_input_interval)
-    next_grids = WRFgrids(clock, next_time, sim.WRF_input_path, sim.WRF_grid)
+    next_grids = WRFgrids(next_time, sim.WRF_input_path, sim.WRF_grid, clock.current_dt_str)
     print('%s : WRF %s grids object initialized' % (clock.current_dt_str,
                                                     str(next_time.isoformat())))
     return next_time, next_grids  # datetime + WRFgrids objects
