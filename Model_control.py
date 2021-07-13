@@ -81,7 +81,7 @@ def ATM_main():
         query_flier_environments(sim, clock, last_wrf_time, last_wrf_grids,
                                  flier_locations, topography, landcover)
     update_flier_environments(clock, all_fliers, flier_environments_last)
-    update_flier_status(sim, clock, all_fliers)
+    update_flier_status(clock, all_fliers)
     #
     # write out flier location and motion summary
     flier_locations = summarize_motion(all_fliers, flier_locations)

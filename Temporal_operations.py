@@ -125,10 +125,10 @@ def update_flier_states(sim, clock, sbw, defoliation, radar, fliers,
     return liftoff_locs, landing_locs, to_remove  # 2 * dict + list
 
 
-def update_flier_status(sim, clock, fliers):
+def update_flier_status(clock, fliers):
     """Update status accounts for all fliers."""
     for flier in fliers.values():
-        flier.update_status(sim, clock)
+        flier.update_status(clock)
     return
 
 
