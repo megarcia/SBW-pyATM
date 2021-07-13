@@ -27,7 +27,7 @@ def update_flier_morphology(sbw, flier):
 
 def oviposition(sim, sbw, fliers):
     """Determine if oviposition occurs and update moth status accordingly."""
-    for flier in fliers:
+    for flier in fliers.values():
         if flier.sex:
             if flier.lc_type == 'null':
                 flier.update_state('EXIT')
