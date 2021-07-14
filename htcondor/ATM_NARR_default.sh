@@ -1,8 +1,7 @@
 #!/bin/bash
 #
-# $(name) $(Process)
-# $1 = simulation name
-# $2 = simulation number
+# $1 = $(grid)_$(date) = simulation name
+# $2 = $(Process) = ensemble replicate number
 #
 echo ""
 echo "------------------------------"
@@ -48,7 +47,6 @@ mkdir "$1"_simulation_$(printf %05d "$2")_summary
 echo "------------------------------"
 date
 echo "starting model"
-echo ""
 mv Simulation_specifications_"$1".py Simulation_specifications.py
 python Model_control.py "$2"
 
