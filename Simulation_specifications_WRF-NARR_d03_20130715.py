@@ -57,6 +57,8 @@ class Simulation(object):
         #
         # BioSIM-derived moth morphological information, if provided
         self.biosim_fname = '2013_BioSIM_SBW_output.csv'  # for now
+        self.biosim_ndays_min = 2  # use adults that emerged at least this many days ago
+        self.biosim_ndays_max = 2  # use adults that emerged at most this many days ago
         self.use_initial_flier_polygon = False
         self.init_flier_min_lat, self.init_flier_max_lat = 48.5, 50.5
         self.init_flier_min_lon, self.init_flier_max_lon = -70.0, -67.0

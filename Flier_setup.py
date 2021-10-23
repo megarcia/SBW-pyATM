@@ -44,20 +44,22 @@ def read_flier_locations_attributes(sim, clock):
         DT = datetime(YY[i], MM[i], DD[i], 0, 0, 0, tzinfo=tz.utc)
         TDelta.append(clock.start_dt - DT)
     attributes_df['timedelta'] = TDelta
+    # select moths that became available within n days of the start date
+    maxdays = sim.biosim_ndays_max
+    young_df = attributes_df[attributes_df['timedelta'] <= timedelta(days=maxdays)]
+    print('initial setup : %d total fliers have been ready <= %d days' %
+          (len(young_df), maxdays))
     # select moths that are fertilized on or before the start date
-    ready_df = attributes_df[attributes_df['timedelta'] >= timedelta(days=2)]
+    mindays = sim.biosim_ndays_min
+    ready_df = young_df[young_df['timedelta'] >= timedelta(days=mindays)]
     print('initial setup : %d total fliers are ready before the start date' %
           len(ready_df))
-    # select moths that became available within 2 weeks of the start date
-    young_df = ready_df[ready_df['timedelta'] <= timedelta(days=14)]
-    print('initial setup : %d total fliers have been ready <= 2 weeks' %
-          len(young_df))
     # select moths that are within the specified initialization/simulation area
     if sim.use_initial_flier_polygon:
-        available_df = young_df[young_df['inside_init_box']]
+        available_df = ready_df[ready_df['inside_init_box']]
         print('initial setup : selecting only ready fliers in the specified area')
     else:
-        available_df = young_df[young_df['inside_grid']]
+        available_df = ready_df[ready_df['inside_grid']]
     n_available = len(available_df)
     print('initial setup : %d ready fliers are available in the simulation domain' %
           n_available)
