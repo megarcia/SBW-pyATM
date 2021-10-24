@@ -20,7 +20,7 @@ from Map_class import lc_category
 
 def read_flier_locations_attributes(sim, clock):
     """Read BioSIM CSV output file with moth emergence dates, locations, attributes.
-       Filter to desired moth age (2-14 days) and location in simulation domain/box."""
+       Filter to desired moth age and location in simulation domain/box."""
     print('initial setup : reading and processing %s' % sim.biosim_fname)
     attributes_df = pd.read_csv(sim.biosim_fname, low_memory=False)
     n_attributes = len(attributes_df)
@@ -44,38 +44,44 @@ def read_flier_locations_attributes(sim, clock):
         DT = datetime(YY[i], MM[i], DD[i], 0, 0, 0, tzinfo=tz.utc)
         TDelta.append(clock.start_dt - DT)
     attributes_df['timedelta'] = TDelta
-    # select moths that became available within n days of the start date
+    #
+    # select moths that emerged within n days of the start date
     maxdays = sim.biosim_ndays_max
     young_df = attributes_df[attributes_df['timedelta'] <= timedelta(days=maxdays)]
     print('initial setup : %d total fliers have been ready <= %d days' %
           (len(young_df), maxdays))
-    # select moths that are fertilized on or before the start date
+    #
+    # select moths that would have been fertilized on or before the start date
     mindays = sim.biosim_ndays_min
     ready_df = young_df[young_df['timedelta'] >= timedelta(days=mindays)]
     print('initial setup : %d total fliers are ready before the start date' %
           len(ready_df))
+    #
     # select moths that are within the specified initialization/simulation area
+    available_df = ready_df[ready_df['inside_grid']]
     if sim.use_initial_flier_polygon:
-        available_df = ready_df[ready_df['inside_init_box']]
+        available_df = available_df[available_df['inside_init_box']]
         print('initial setup : selecting only ready fliers in the specified area')
-    else:
-        available_df = ready_df[ready_df['inside_grid']]
     n_available = len(available_df)
     print('initial setup : %d ready fliers are available in the simulation domain' %
           n_available)
+    #
     # lat/lon based on BioSIM assignment and availability
     lats = np.array(available_df['Latitude']).astype(np.float)
     lons = np.array(available_df['Longitude']).astype(np.float)
+    #
     # morphological attributes based on BioSIM assignment (for now)
     sex = np.array(available_df['Sex']).astype(np.int)
     A = np.array(available_df['A']).astype(np.float)
     M = np.array(available_df['M']).astype(np.float)
     F = np.array(available_df['F']).astype(np.float) * sex
     F_0 = np.array(available_df['F_0']).astype(np.float) * sex
+    #
     # export locations
     locations = list()
     for i in range(n_available):
         locations.append([lats[i], lons[i]])
+    #
     # export attributes
     attributes = list()
     for i in range(n_available):
