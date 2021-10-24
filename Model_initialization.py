@@ -108,7 +108,11 @@ def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defolia
     #
     # select n_fliers from available pool
     n_fliers_available = len(flier_locations)
-    selected_fliers = np.random.randint(low=0, high=n_fliers_available, size=sim.n_fliers)
+    if n_fliers_available > sim.n_fliers:
+        selected_fliers = np.random.randint(low=0, high=n_fliers_available, size=sim.n_fliers)
+    else:
+        selected_fliers = list(range(n_fliers_available))
+    sim.n_fliers = len(selected_fliers)
     #
     # initialize individual Flier objects
     print('initial setup : initializing %d Fliers' % sim.n_fliers)
