@@ -15,6 +15,7 @@ from WRFgrids_class import WRFgrids
 from Map_class import setup_topo_map, setup_lc_map, setup_defoliation_map
 from Radar_class import Radar
 from Flier_class import Flier
+from Flier_setup import read_survivor_locations_attributes
 from Flier_setup import read_flier_locations_attributes
 from Flier_setup import generate_flier_locations, generate_flier_attributes
 from Circadian_calculations import calc_circadian_from_WRF_T, assign_circadian
@@ -25,40 +26,56 @@ from Solar_calculations import update_suntimes
 def command_line_args(sim, args):
     """Process command line arguments.
        TO DO: convert to argparse usage."""
+    sim.sequential = False
+    sim.sequential_prev_fname = None
+    sim.sequential_use_prev_survivors = False
     if len(args) > 2:
-        print('initial setup : experiment number %s' % args[1])
-        sim.experiment_number = int(args[1])
-        var_name = args[2]
-        var_value = float(args[3])
-        if var_name == 'max_precip':
-            sim.max_precip = var_value
-            print('initial setup : using %s = %.2f' % (var_name, var_value))
-        if var_name == 'min_windspeed':
-            sim.min_windspeed = var_value
-            print('initial setup : using %s = %.2f' % (var_name, var_value))
-        if sim.flight_speed == 'const':
-            if var_name == 'w_horizontal':
-                sim.w_horizontal = var_value
+        if args[2] == 'seq':
+            print('initial setup : simulation number %s in experiment collection' %
+                  args[1].zfill(5))
+            sim.simulation_number = int(args[1])
+            sim.sequential = True
+            print('initial setup : simulations in sequential date mode')
+            print('initial setup : list of simulation surviving moths will be generated')
+            if len(args) == 4:
+                sim.sequential_use_prev_survivors = True
+                sim.sequential_prev_fname = '%s_survivor_attributes.csv' % args[3]
+                print('initial setup : using previous survivor moths from %s' %
+                      sim.sequential_prev_fname)
+        else:
+            print('initial setup : experiment number %s' % args[1])
+            sim.experiment_number = int(args[1])
+            var_name = args[2]
+            var_value = float(args[3])
+            if var_name == 'max_precip':
+                sim.max_precip = var_value
                 print('initial setup : using %s = %.2f' % (var_name, var_value))
-            if var_name == 'w_alpha':
-                sim.w_alpha = var_value
+            if var_name == 'min_windspeed':
+                sim.min_windspeed = var_value
                 print('initial setup : using %s = %.2f' % (var_name, var_value))
-            if var_name == 'wingbeat_coeff':
-                print('initial setup : ignoring %s value' % var_name)
-                print('initial setup : (change sim.flight_speed if you want to use it)')
-        if sim.flight_speed == 'param':
-            if var_name in ['w_horizontal', 'w_alpha']:
-                print('initial setup : ignoring %s value' % var_name)
-                print('initial setup : (change sim.flight_speed if you want to use it)')
-            if var_name == 'wingbeat_coeff':
-                sim.wingbeat_coeff = var_value
+            if sim.flight_speed == 'const':
+                if var_name == 'w_horizontal':
+                    sim.w_horizontal = var_value
+                    print('initial setup : using %s = %.2f' % (var_name, var_value))
+                if var_name == 'w_alpha':
+                    sim.w_alpha = var_value
+                    print('initial setup : using %s = %.2f' % (var_name, var_value))
+                if var_name == 'wingbeat_coeff':
+                    print('initial setup : ignoring %s value' % var_name)
+                    print('initial setup : (change sim.flight_speed if you want to use it)')
+            if sim.flight_speed == 'param':
+                if var_name in ['w_horizontal', 'w_alpha']:
+                    print('initial setup : ignoring %s value' % var_name)
+                    print('initial setup : (change sim.flight_speed if you want to use it)')
+                if var_name == 'wingbeat_coeff':
+                    sim.wingbeat_coeff = var_value
+                    print('initial setup : using %s = %.2f' % (var_name, var_value))
+            if var_name == 'delta_nu':
+                sim.delta_nu = var_value
                 print('initial setup : using %s = %.2f' % (var_name, var_value))
-        if var_name == 'delta_nu':
-            sim.delta_nu = var_value
-            print('initial setup : using %s = %.2f' % (var_name, var_value))
-        print('initial setup : simulation number %s in experiment collection' %
-              args[4].zfill(5))
-        sim.simulation_number = int(args[4])
+            print('initial setup : simulation number %s in experiment collection' %
+                  args[4].zfill(5))
+            sim.simulation_number = int(args[4])
     else:
         print('initial setup : using default values for all parameters')
         print('initial setup : simulation number %s in experiment collection' %
@@ -102,9 +119,16 @@ def setup_fliers(sim, clock, sbw, last_wrf_grids, topography, landcover, defolia
         flier_locations = generate_flier_locations(last_wrf_grids, landcover, defoliation)
         flier_attributes = generate_flier_attributes(sbw, flier_locations)
     else:
+        if sim.sequential_use_prev_survivors:
+            # read survivor locations and attributes from specified previous output CSV file
+            print('initial setup : obtaining surviving flier locations and attributes')
+            survivors_df = read_survivor_locations_attributes(sim, clock)
+        else:
+            survivors_df = None
         # read flier locations and attributes from BioSIM output CSV file
         print('initial setup : obtaining BioSIM output flier locations and attributes')
-        flier_locations, flier_attributes = read_flier_locations_attributes(sim, clock)
+        flier_locations, flier_attributes = \
+            read_flier_locations_attributes(sim, clock, survivors_df)
     #
     # select n_fliers from available pool
     n_fliers_available = len(flier_locations)
