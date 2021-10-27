@@ -383,7 +383,6 @@ def flight_status_columns():
 
 def report_flier_statistics(sim, clock, all_fliers_flight_status, liftoff_locations):
     """Calculate and report various statistics across all Fliers in simulation."""
-    #
     n_fliers_male = 0
     n_fliers_female = 0
     n_nonfliers_male = 0
@@ -710,6 +709,35 @@ def report_flier_statistics(sim, clock, all_fliers_flight_status, liftoff_locati
         outfile.write(','.join([str(x) for x in flight_alt_bins_male]) + '\n')
         outfile.write(','.join([str(x) for x in flight_alt_counts_male]) + '\n')
     print('simulation wrapup : wrote %s' % outfname.split('/')[-1])
+    return
+
+
+def report_survivor_attributes(sim, fliers):
+    """Report attributes of all surviving Fliers in simulation."""
+    attributes = dict()
+    for flier_id, flier in fliers.items():
+        if flier.state in ['INITIALIZED', 'OVIPOSITION', 'READY',
+                           'HOST', 'FOREST', 'NONFOREST']:
+            attributes[flier_id] = [flier.lat, flier.lon, flier.eclosion_YY,
+                                    flier.eclosion_MM, flier.eclosion_DD,
+                                    flier.sex, flier.forewing_A, flier.mass,
+                                    flier.fecundity, flier.fecundity_0]
+    #
+    survivors_df = pd.DataFrame.from_dict(attributes, orient='index')
+    columns = ['Latitude', 'Longitude', 'Year', 'Month',
+               'Day', 'Sex', 'A', 'M', 'F', 'F_0']
+    survivors_df.columns = columns
+    #
+    if sim.experiment_number:
+        outfname = '%s_%s_%s_survivor_attributes.csv' % \
+            (sim.simulation_name, str(sim.experiment_number).zfill(2),
+             str(sim.simulation_number).zfill(5))
+    else:
+        outfname = '%s_%s_survivor_attributes.csv' % \
+            (sim.simulation_name, str(sim.simulation_number).zfill(5))
+    #
+    survivors_df.to_csv(outfname)
+    print('simulation wrapup : wrote %s' % outfname)
     return
 
 

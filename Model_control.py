@@ -26,7 +26,7 @@ from Temporal_operations import load_next_WRF_grids, shuffle_WRF_grids
 from Flier_summary import summarize_locations, report_flier_locations
 from Flier_summary import summarize_motion, summarize_activity
 from Model_wrapup import report_remaining_fliers, report_statistics
-from Model_wrapup import report_trajectories, report_summary_grids
+from Model_wrapup import report_trajectories, report_summary_grids, report_survivors
 
 
 def ATM_main():
@@ -176,8 +176,10 @@ def ATM_main():
         trajectories, egg_deposition = \
             report_remaining_fliers(sim, clock, all_fliers, trajectories, egg_deposition)
     #
-    # end-of-simulation flight statistics, trajectories, location reports, grids
+    # end-of-simulation flight statistics, trajectories, survivors, location reports, grids
     report_statistics(sim, clock, all_fliers_flight_status, liftoff_locations)
+    if sim.sequential:
+        report_survivors(sim, all_fliers)
     report_trajectories(sim, next_wrf_grids, trajectories)
     report_summary_grids(sim, liftoff_locations, landing_locations, egg_deposition)
     #

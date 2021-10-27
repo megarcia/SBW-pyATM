@@ -11,6 +11,7 @@ Copyright (C) 2021 by Matthew Garcia
 
 
 from Flier_summary import plot_trajectories, report_flier_statistics
+from Flier_summary import report_survivor_attributes
 from Flier_grids import grid_liftoff_locations, grid_landing_locations
 from Flier_grids import grid_egg_deposition
 
@@ -49,6 +50,13 @@ def report_summary_grids(sim, liftoff_locs, landing_locs, egg_dep):
         grid_landing_locations(sim, landing_locs)
     if egg_dep:
         grid_egg_deposition(sim, egg_dep)
+    return
+
+
+def report_survivors(sim, fliers):
+    """Report attributes for all surviving fliers."""
+    print('simulation wrapup : processing fliers to record survivors')
+    report_survivor_attributes(sim, fliers)
     return
 
 # end Model_wrapup.py
