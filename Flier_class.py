@@ -203,20 +203,20 @@ class Flier:
                 # revised February 2021 (MG)
                 if self.state == 'LIFTOFF':
                     # horizontal speed [m/s]
-                    self.v_h = -1 * sim.wingbeat_eff * self.AMratio * \
+                    self.v_h = -1 * sim.wingbeat_coeff * self.AMratio * \
                                self.nu * np.cos(self.liftoff_angle)
                     # vertical speed [m/s]
-                    self.v_z = sim.wingbeat_eff * self.AMratio * \
+                    self.v_z = sim.wingbeat_coeff * self.AMratio * \
                                (self.nu - self.nu_L) * np.sin(self.liftoff_angle)
                 elif self.state == 'FLIGHT':
                     # horizontal speed [m/s]
-                    self.v_h = -1 * sim.wingbeat_eff * self.AMratio * self.nu
+                    self.v_h = -1 * sim.wingbeat_coeff * self.AMratio * self.nu
                     # horizontal speed [m/s] in calm winds
                     V_h = np.sqrt(self.U**2 + self.V**2)
                     if (self.v_h + V_h) < sim.min_flight_speed:
                         self.v_h = sim.min_flight_speed - V_h
                     # vertical speed [m/s]
-                    self.v_z = sim.wingbeat_eff * self.AMratio * (self.nu - self.nu_L)
+                    self.v_z = sim.wingbeat_coeff * self.AMratio * (self.nu - self.nu_L)
                 self.update_v_h_components(self.v_h)
         elif self.state in ['LANDING_S', 'LANDING_W', 'LANDING_T', 'LANDING_P', 'EXHAUSTED']:
             # drifting on wind, wings folded

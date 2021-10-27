@@ -85,7 +85,7 @@ class Simulation(object):
         self.flight_speed = 'param'  # 'const' for constant flight speed, 'param' for parameterized
         self.w_horizontal = 2.0      # constant flight speed [m/s] from Greenbank et al. (1980)
         self.w_alpha = 0.11          # vertical flight speed conversion factor [m/s/Hz]
-        self.wingbeat_eff = 1.58     # wingbeat coefficient for flight speed parameterization
+        self.wingbeat_coeff = 1.58   # wingbeat coefficient for flight speed parameterization
         # energy conservation
         self.delta_nu = 1.0          # cruising altitude adjustment factor
         #

@@ -43,15 +43,15 @@ def command_line_args(sim, args):
             if var_name == 'w_alpha':
                 sim.w_alpha = var_value
                 print('initial setup : using %s = %.2f' % (var_name, var_value))
-            if var_name == 'wingbeat_eff':
+            if var_name == 'wingbeat_coeff':
                 print('initial setup : ignoring %s value' % var_name)
                 print('initial setup : (change sim.flight_speed if you want to use it)')
         if sim.flight_speed == 'param':
             if var_name in ['w_horizontal', 'w_alpha']:
                 print('initial setup : ignoring %s value' % var_name)
                 print('initial setup : (change sim.flight_speed if you want to use it)')
-            if var_name == 'wingbeat_eff':
-                sim.wingbeat_eff = var_value
+            if var_name == 'wingbeat_coeff':
+                sim.wingbeat_coeff = var_value
                 print('initial setup : using %s = %.2f' % (var_name, var_value))
         if var_name == 'delta_nu':
             sim.delta_nu = var_value
