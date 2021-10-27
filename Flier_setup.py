@@ -18,24 +18,70 @@ from Geography import inside_grid, inside_init_box
 from Map_class import lc_category
 
 
-def read_flier_locations_attributes(sim, clock):
+def read_survivor_locations_attributes(sim, clock):
+    """Read previous survivor CSV output file with moth locations, attributes."""
+    print('initial setup : reading and processing %s' % sim.sequential_prev_fname)
+    survivors_df = pd.read_csv(sim.sequential_prev_fname)
+    n_survivors = len(survivors_df)
+    print('initial setup : %d total survivors are listed' % n_survivors)
+    #
+    # check if survivors inside simulation domain/grid
+    lats = np.array(survivors_df['Latitude']).astype(np.float)
+    lons = np.array(survivors_df['Longitude']).astype(np.float)
+    inside = list()
+    for i in range(n_survivors):
+        inside.append(inside_grid(sim, lats[i], lons[i]))
+    survivors_df['inside_grid'] = inside
+    #
+    # check if survivors inside specified simulation polygon
+    if sim.use_initial_flier_polygon:
+        inside = list()
+        for i in range(n_survivors):
+            inside.append(inside_init_box(sim, lats[i], lons[i]))
+        survivors_df['inside_init_box'] = inside
+    #
+    # check time since eclosion
+    YY = np.array(survivors_df['Year']).astype(np.int)
+    MM = np.array(survivors_df['Month']).astype(np.int)
+    DD = np.array(survivors_df['Day']).astype(np.int)
+    TDelta = list()
+    for i in range(n_survivors):
+        DT = datetime(YY[i], MM[i], DD[i], 0, 0, 0, tzinfo=tz.utc)
+        TDelta.append(clock.start_dt - DT)
+    survivors_df['timedelta'] = TDelta
+    #
+    # select survivors that eclosed within 7 days of the start date
+    maxdays = 7
+    available_df = survivors_df[survivors_df['timedelta'] <= timedelta(days=maxdays)]
+    print('initial setup : %d survivors have been ready <= %d days' %
+          (len(available_df), maxdays))
+    return available_df
+
+
+def read_flier_locations_attributes(sim, clock, survivors_df=None):
     """Read BioSIM CSV output file with moth emergence dates, locations, attributes.
        Filter to desired moth age and location in simulation domain/box."""
     print('initial setup : reading and processing %s' % sim.biosim_fname)
     attributes_df = pd.read_csv(sim.biosim_fname, low_memory=False)
     n_attributes = len(attributes_df)
     print('initial setup : %d total fliers are listed' % n_attributes)
+    #
+    # check if fliers inside simulation domain/grid
     lats = np.array(attributes_df['Latitude']).astype(np.float)
     lons = np.array(attributes_df['Longitude']).astype(np.float)
     inside = list()
     for i in range(n_attributes):
         inside.append(inside_grid(sim, lats[i], lons[i]))
     attributes_df['inside_grid'] = inside
+    #
+    # check if survivors inside specified simulation polygon
     if sim.use_initial_flier_polygon:
         inside = list()
         for i in range(n_attributes):
             inside.append(inside_init_box(sim, lats[i], lons[i]))
         attributes_df['inside_init_box'] = inside
+    #
+    # check time since eclosion
     YY = np.array(attributes_df['Year']).astype(np.int)
     MM = np.array(attributes_df['Month']).astype(np.int)
     DD = np.array(attributes_df['Day']).astype(np.int)
@@ -48,14 +94,24 @@ def read_flier_locations_attributes(sim, clock):
     # select moths that emerged within n days of the start date
     maxdays = sim.biosim_ndays_max
     young_df = attributes_df[attributes_df['timedelta'] <= timedelta(days=maxdays)]
-    print('initial setup : %d total fliers have been ready <= %d days' %
+    print('initial setup : %d new fliers have been ready <= %d days' %
           (len(young_df), maxdays))
     #
     # select moths that would have been fertilized on or before the start date
     mindays = sim.biosim_ndays_min
     ready_df = young_df[young_df['timedelta'] >= timedelta(days=mindays)]
-    print('initial setup : %d total fliers are ready before the start date' %
+    print('initial setup : %d new fliers are ready by the start date' %
           len(ready_df))
+    #
+    # add on survivors from prior days, if given
+    if sim.sequential_use_prev_survivors:
+        n_survivors = len(survivors_df)
+        print('initial setup : %d surviving fliers are ready by the start date' %
+              n_survivors)
+        ready_df = pd.concat([ready_df, survivors_df], axis=0)
+        n_ready = len(ready_df)
+        print('initial setup : %d total fliers are ready by the start date' %
+              n_ready)
     #
     # select moths that are within the specified initialization/simulation area
     available_df = ready_df[ready_df['inside_grid']]
@@ -69,6 +125,11 @@ def read_flier_locations_attributes(sim, clock):
     # lat/lon based on BioSIM assignment and availability
     lats = np.array(available_df['Latitude']).astype(np.float)
     lons = np.array(available_df['Longitude']).astype(np.float)
+    #
+    # eclosion date based on BioSIM
+    eclosion_YY = np.array(available_df['Year']).astype(np.int)
+    eclosion_MM = np.array(available_df['Month']).astype(np.int)
+    eclosion_DD = np.array(available_df['Day']).astype(np.int)
     #
     # morphological attributes based on BioSIM assignment (for now)
     sex = np.array(available_df['Sex']).astype(np.int)
@@ -85,7 +146,8 @@ def read_flier_locations_attributes(sim, clock):
     # export attributes
     attributes = list()
     for i in range(n_available):
-        attributes.append([sex[i], A[i], M[i], F_0[i], F[i]])
+        attributes.append([eclosion_YY[i], eclosion_MM[i], eclosion_DD[i],
+                           sex[i], A[i], M[i], F[i], F_0[i]])
     return locations, attributes  # 2 * lists
 
 
