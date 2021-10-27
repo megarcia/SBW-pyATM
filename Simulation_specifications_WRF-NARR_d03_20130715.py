@@ -16,10 +16,10 @@ class Simulation(object):
     def __init__(self):
         #
         # simulation management
-        self.simulation_name = 'WRF-NARR_d03_20130715'
+        self.simulation_name = 'ATM_WRF-NARR_d03_20130715'
         self.experiment_number = 0  # if there are multiple experiments, changed by user input
         self.simulation_number = 0  # if there are multiple simulations, changed by user input
-        self.n_fliers = 1000        # recommended max 1000 per simulation
+        self.n_fliers = 10000       # recommended max 1000 per simulation
         #
         # simulation spatial domain
         self.grid_min_lat, self.grid_max_lat = 42.0415, 51.3277
@@ -57,14 +57,14 @@ class Simulation(object):
         #
         # BioSIM-derived moth morphological information, if provided
         self.biosim_fname = '2013_BioSIM_SBW_output.csv'  # for now
-        self.biosim_ndays_min = 2  # use adults that emerged at least this many days ago
+        self.biosim_ndays_min = 1  # use adults that emerged at least this many days ago
         self.biosim_ndays_max = 2  # use adults that emerged at most this many days ago
         self.use_initial_flier_polygon = False
         self.init_flier_min_lat, self.init_flier_max_lat = 48.5, 50.5
         self.init_flier_min_lon, self.init_flier_max_lon = -70.0, -67.0
         #
         # WRF input options
-        self.WRF_input_path = '%s_grids' % self.simulation_name
+        self.WRF_input_path = 'WRF-NARR_d03_20130715_grids'
         self.WRF_grid = 'd03'
         self.WRF_input_interval = 60  # [min]
         # vinterp options: 'nearest', 'linear', 'quadratic' (splines), 'cubic' (splines), etc.
@@ -85,7 +85,7 @@ class Simulation(object):
         self.flight_speed = 'param'  # 'const' for constant flight speed, 'param' for parameterized
         self.w_horizontal = 2.0      # constant flight speed [m/s] from Greenbank et al. (1980)
         self.w_alpha = 0.11          # vertical flight speed conversion factor [m/s/Hz]
-        self.wingbeat_eff = 1.58     # wingbeat efficiency for parameterization
+        self.wingbeat_eff = 1.58     # wingbeat coefficient for flight speed parameterization
         # energy conservation
         self.delta_nu = 1.0          # cruising altitude adjustment factor
         #
