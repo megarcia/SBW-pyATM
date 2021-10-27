@@ -80,14 +80,19 @@ class Flier:
         self.V = 0.0
         self.W = 0.0
         #
+        # eclosion date (via BioSIM)
+        self.eclosion_YY = flier_attributes[0]
+        self.eclosion_MM = flier_attributes[1]
+        self.eclosion_DD = flier_attributes[2]
+        #
         # morphological attributes
-        self.sex = flier_attributes[0]
-        self.forewing_A = flier_attributes[1]  # cm^2
-        self.mass = flier_attributes[2]  # kg
+        self.sex = flier_attributes[3]
+        self.forewing_A = flier_attributes[4]  # cm^2
+        self.mass = flier_attributes[5]  # kg
         self.mass_err = 1.0
         if self.sex:
-            self.fecundity = int(round(flier_attributes[3], 0))
-            self.fecundity_0 = int(round(flier_attributes[4], 0))
+            self.fecundity = int(round(flier_attributes[6], 0))
+            self.fecundity_0 = int(round(flier_attributes[7], 0))
             self.gravidity = self.fecundity / self.fecundity_0
             self.eggs_laid = dict()
         else:
