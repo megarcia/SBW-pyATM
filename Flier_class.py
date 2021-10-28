@@ -406,7 +406,7 @@ class Flier:
                 self.sfc_elev = 0.0
             self.alt_MSL = self.sfc_elev
         self.update_status(clock)
-        if self.state in ['SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
+        if self.state in ['SUNRISE', 'SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             self.active = 0
             remove = True
         return remove, liftoff_locations, landing_locations  # bool + 2 * dict
