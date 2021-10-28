@@ -115,7 +115,7 @@ def update_flier_states(sim, clock, sbw, defoliation, radar, fliers,
     for flier_id, flier in fliers.items():
         if flier.state in ['INITIALIZED', 'OVIPOSITION']:
             calc_circadian_p(clock, flier)
-        remove, liftoff_locs, landing_locs = \
+        remove, liftoff_locs, landing_locs, survivors = \
             flier.state_decisions(sim, clock, sbw, defoliation, radar,
                                   liftoff_locs, landing_locs, survivors)
         if remove:
