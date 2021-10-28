@@ -108,7 +108,7 @@ def update_flier_locations(clock, fliers):
 
 
 def update_flier_states(sim, clock, sbw, defoliation, radar, fliers,
-                        liftoff_locs, landing_locs):
+                        liftoff_locs, landing_locs, survivors):
     """Update operating states of all fliers."""
     print('%s : updating states of active fliers' % clock.current_dt_str)
     to_remove = list()
@@ -117,12 +117,12 @@ def update_flier_states(sim, clock, sbw, defoliation, radar, fliers,
             calc_circadian_p(clock, flier)
         remove, liftoff_locs, landing_locs = \
             flier.state_decisions(sim, clock, sbw, defoliation, radar,
-                                  liftoff_locs, landing_locs)
+                                  liftoff_locs, landing_locs, survivors)
         if remove:
             print('%s : flier %s indicated for removal' %
                   (clock.current_dt_str, flier.flier_id))
             to_remove.append(flier_id)
-    return liftoff_locs, landing_locs, to_remove  # 2 * dict + list
+    return liftoff_locs, landing_locs, survivors, to_remove  # 3 * dict + list
 
 
 def update_flier_status(clock, fliers):

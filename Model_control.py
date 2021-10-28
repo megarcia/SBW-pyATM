@@ -75,6 +75,7 @@ def ATM_main():
     liftoff_locations = dict()
     landing_locations = dict()
     egg_deposition = dict()
+    survivors = dict()
     #
     # get flier initial environment variables
     flier_environments_last = \
@@ -144,9 +145,9 @@ def ATM_main():
         report_flier_locations(sim, clock, radar, flier_locations)
         #
         # loop through all_fliers, update state as needed and append to status record
-        liftoff_locations, landing_locations, to_remove = \
+        liftoff_locations, landing_locations, survivors, to_remove = \
             update_flier_states(sim, clock, sbw, defoliation, radar, all_fliers,
-                                liftoff_locations, landing_locations)
+                                liftoff_locations, landing_locations, survivors)
         #
         # diagnostic summary of flier activity
         summarize_activity(clock, all_fliers)
@@ -179,7 +180,7 @@ def ATM_main():
     # end-of-simulation flight statistics, trajectories, survivors, location reports, grids
     report_statistics(sim, clock, all_fliers_flight_status, liftoff_locations)
     if sim.sequential:
-        report_survivors(sim, all_fliers)
+        report_survivors(sim, survivors)
     report_trajectories(sim, next_wrf_grids, trajectories)
     report_summary_grids(sim, liftoff_locations, landing_locations, egg_deposition)
     #

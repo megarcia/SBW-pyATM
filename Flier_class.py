@@ -316,6 +316,13 @@ class Flier:
                     self.mass, self.fecundity]
         return loc_info
 
+    def survivor_info(self):
+        """Concatenate info on surviving Flier attributes."""
+        attributes = [self.lat, self.lon, self.eclosion_YY, self.eclosion_MM,
+                      self.eclosion_DD, self.sex, self.forewing_A, self.mass,
+                      self.fecundity, self.fecundity_0]
+        return attributes
+
     def update_state_motion(self, sim, sbw, radar, new_state):
         """Update Flier state and motion."""
         self.update_state(new_state)
@@ -326,7 +333,7 @@ class Flier:
         return
 
     def state_decisions(self, sim, clock, sbw, defoliation, radar,
-                        liftoff_locations, landing_locations):
+                        liftoff_locations, landing_locations, survivors):
         """The main decision-making block."""
         self.update_nu(sim, sbw)
         remove = False
@@ -406,10 +413,14 @@ class Flier:
                 self.sfc_elev = 0.0
             self.alt_MSL = self.sfc_elev
         self.update_status(clock)
-        if self.state in ['SUNRISE', 'SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
+        if self.state == 'SUNRISE':
+            if sim.sequential:
+                survivors[self.flier_id] = self.survivor_info()
+            remove = True
+        elif self.state in ['SPENT', 'SPLASHED', 'EXIT', 'MAXFLIGHTS', 'EXHAUSTED']:
             self.active = 0
             remove = True
-        return remove, liftoff_locations, landing_locations  # bool + 2 * dict
+        return remove, liftoff_locations, landing_locations, survivors  # bool + 3 * dict
 
     def flight_status_info(self, clock):
         """Concatenate info on Flier location, status, and conditions."""

@@ -87,6 +87,7 @@ def report_flier_locations(sim, clock, radar, locations):
                'UTM_zone', 'easting', 'northing',
                'v_x', 'v_y', 'v_z', 'v_r', 'v_a']
     location_df.columns = columns
+    #
     if sim.experiment_number:
         outfname = '%s_simulation_%s_%s_summary/locs_%s_%s_%s.csv' % \
             (sim.simulation_name, str(sim.experiment_number).zfill(2),
@@ -97,8 +98,10 @@ def report_flier_locations(sim, clock, radar, locations):
         outfname = '%s_simulation_%s_summary/locs_%s_%s.csv' % \
             (sim.simulation_name, str(sim.simulation_number).zfill(5),
              clock.current_dt_str, str(sim.simulation_number).zfill(5))
+    #
     location_df.to_csv(outfname)
     print('%s : wrote %s' % (clock.current_dt_str, outfname.split('/')[-1]))
+    #
     if sim.use_radar and sim.npy_grids:
         grid_flier_locations(sim, clock, radar, locations)
         grid_flier_dvels(sim, clock, radar, locations)
@@ -712,18 +715,9 @@ def report_flier_statistics(sim, clock, all_fliers_flight_status, liftoff_locati
     return
 
 
-def report_survivor_attributes(sim, fliers):
+def report_survivor_attributes(sim, survivors):
     """Report attributes of all surviving Fliers in simulation."""
-    attributes = dict()
-    for flier_id, flier in fliers.items():
-        if flier.state in ['INITIALIZED', 'OVIPOSITION', 'READY',
-                           'HOST', 'FOREST', 'NONFOREST']:
-            attributes[flier_id] = [flier.lat, flier.lon, flier.eclosion_YY,
-                                    flier.eclosion_MM, flier.eclosion_DD,
-                                    flier.sex, flier.forewing_A, flier.mass,
-                                    flier.fecundity, flier.fecundity_0]
-    #
-    survivors_df = pd.DataFrame.from_dict(attributes, orient='index')
+    survivors_df = pd.DataFrame.from_dict(survivors, orient='index')
     columns = ['Latitude', 'Longitude', 'Year', 'Month',
                'Day', 'Sex', 'A', 'M', 'F', 'F_0']
     survivors_df.columns = columns

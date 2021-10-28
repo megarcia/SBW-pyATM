@@ -53,10 +53,10 @@ def report_summary_grids(sim, liftoff_locs, landing_locs, egg_dep):
     return
 
 
-def report_survivors(sim, fliers):
+def report_survivors(sim, survivors):
     """Report attributes for all surviving fliers."""
     print('simulation wrapup : processing fliers to record survivors')
-    report_survivor_attributes(sim, fliers)
+    report_survivor_attributes(sim, survivors)
     return
 
 # end Model_wrapup.py
